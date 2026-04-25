@@ -1,6 +1,14 @@
+"use client";
+
 import { Sale } from "@/lib/schemas/sales";
 
-export function SalesList({ sales }: { sales: Sale[] }) {
+type SalesListProps = {
+  sales: Sale[];
+  onEdit: (sale: Sale) => void;
+  onDelete: (sale: Sale) => void;
+};
+
+export function SalesList({ sales, onEdit, onDelete }: SalesListProps) {
   function renderUrlCell(url: string | null | undefined) {
     if (!url) {
       return <span className="text-gray-400">-</span>;
@@ -44,6 +52,7 @@ export function SalesList({ sales }: { sales: Sale[] }) {
             <th className="p-4 font-semibold text-gray-900">URL NF</th>
             <th className="p-4 font-semibold text-gray-900">URL Contrato</th>
             <th className="p-4 font-semibold text-gray-900">Status</th>
+            <th className="p-4 font-semibold text-gray-900">Ações</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -63,6 +72,24 @@ export function SalesList({ sales }: { sales: Sale[] }) {
                 }`}>
                   {sale.status}
                 </span>
+              </td>
+              <td className="p-4">
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onEdit(sale)}
+                    className="rounded border border-blue-200 px-3 py-1 text-sm font-medium text-blue-700 hover:bg-blue-50"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(sale)}
+                    className="rounded border border-red-200 px-3 py-1 text-sm font-medium text-red-700 hover:bg-red-50"
+                  >
+                    Deletar
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

@@ -7,6 +7,7 @@ export const saleSchema = z.object({
   data_entrega: z.iso.datetime(),
   status: z.enum(["Pago", "Pendente"]),
   itens_quantidade: z.string(),
+  numero_ordem: z.string().nullable().optional(),
   nf_url: z.string().nullable().optional(),
   contrato_url: z.string().nullable().optional(),
 });
