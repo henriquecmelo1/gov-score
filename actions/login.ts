@@ -22,5 +22,5 @@ export async function loginAction(data: LoginInput) {
     return { error: "E-mail ou senha incorretos." };
   }
 
-  redirect("/dashboard");
+  redirect("/profile");
 }

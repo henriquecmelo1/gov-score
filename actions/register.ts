@@ -32,5 +32,5 @@ export async function registerAction(data: RegisterInput) {
 
   if (profileError) return { error: "Erro ao salvar perfil da empresa" };
 
-  redirect("/dashboard");
+  redirect("/profile");
 }

@@ -1,10 +1,9 @@
-// app/dashboard/page.tsx
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getCompanyProfile, getCompanySales } from "@/lib/supabase/queries";
-import { SalesSection } from "@/components/dashboard/sales-section"; // Novo componente
+import { SalesSection } from "@/components/sales/sales-section"; // Novo componente
 
-export default async function DashboardPage() {
+export default async function ProfilePage() {
   const supabase = await createClient();
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();

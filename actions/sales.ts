@@ -94,7 +94,7 @@ export async function createSaleAction(formData: FormData) {
 
     if (updateError) throw updateError;
 
-    revalidatePath("/dashboard");
+    revalidatePath("/profile");
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erro inesperado ao criar venda";
@@ -142,7 +142,7 @@ export async function updateSaleAction(formData: FormData) {
 
     if (error) throw error;
 
-    revalidatePath("/dashboard");
+    revalidatePath("/profile");
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erro inesperado ao atualizar venda";
@@ -189,6 +189,6 @@ export async function deleteSaleAction(saleId: string) {
     return { error: error.message };
   }
 
-  revalidatePath("/dashboard");
+  revalidatePath("/profile");
   return { success: true };
 }
