@@ -59,10 +59,9 @@ export async function getPublicSales(supabase: SupabaseClient, search?: string) 
   if (byDebtor.error) throw new Error(byDebtor.error.message);
   if (byProfile.error) throw new Error(byProfile.error.message);
 
-  console.log(byDebtor)
 
   const merged = [...(byDebtor.data ?? []), ...(byProfile.data ?? [])];
   const uniqueById = new Map(merged.map((sale) => [sale.id, sale]));
-
+  
   return Array.from(uniqueById.values());
 }
