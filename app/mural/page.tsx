@@ -13,10 +13,10 @@ export default async function MuralPage({
     const sales = await getPublicSales(supabase, resolvedSearchParams.search);
 
     return (
-        <main className="container mx-auto py-10 px-4">
+        <main className="py-2">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold">Mural de Transparência</h1>
+                    <h1 className="text-3xl font-bold text-primary">Mural de Transparencia</h1>
                     <p className="text-muted-foreground">
                         Consulte vendas e histórico de pagamentos de entidades públicas.
                     </p>
@@ -24,9 +24,9 @@ export default async function MuralPage({
                 <SearchFilter />
             </div>
 
-            <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+            <div className="overflow-hidden rounded-lg border border-secondary bg-white shadow-sm">
                 <table className="w-full text-left border-collapse">
-                    <thead className="bg-gray-50 border-b">
+                    <thead className="border-b border-secondary bg-primary-50">
                         <tr>
                             <th className="p-4 font-semibold">Empresa</th>
                             <th className="p-4 font-semibold">Entidade Devedora</th>
@@ -38,7 +38,7 @@ export default async function MuralPage({
                     <tbody className="divide-y">
                         {sales.length > 0 ? (
                             sales.map((sale) => (
-                                <tr key={sale.id} className="hover:bg-gray-50 transition-colors">
+                                <tr key={sale.id} className="transition-colors hover:bg-primary-50">
                                     <td className="p-4 font-medium">{sale.profiles?.razao_social ?? "-"}</td>
                                     <td className="p-4">{sale.entidade_devedora}</td>
                                     <td className="p-4">
