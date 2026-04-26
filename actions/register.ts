@@ -11,11 +11,13 @@ export async function registerAction(data: RegisterInput) {
     return { error: "Dados inválidos" };
   }
 
+  const validData = result.data;
+
   const supabase = await createClient();
 
   const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: data.email,
-    password: data.password,
+    email: validData.email,
+    password: validData.password,
   });
 
   if (authError) return { error: authError.message };
@@ -24,10 +26,10 @@ export async function registerAction(data: RegisterInput) {
     .from("profiles")
     .insert({
       id: authData.user?.id,
-      razao_social: data.razao_social,
-      cnpj: data.cnpj,
-      endereco: data.endereco,
-      telefone: data.telefone,
+      razao_social: validData.razao_social,
+      cnpj: validData.cnpj,
+      endereco: validData.endereco,
+      telefone: validData.telefone,
     });
 
   if (profileError) return { error: "Erro ao salvar perfil da empresa" };
