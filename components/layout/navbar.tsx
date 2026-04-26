@@ -19,7 +19,7 @@ export async function Navbar() {
         <div className="flex items-center gap-1 text-sm font-medium">
           <Link
             href="/mural"
-            className="rounded-md px-3 py-2 text-slate-700 transition hover:bg-primary-50 hover:text-primary"
+            className="rounded-md bg-primary px-3 py-2 font-semibold text-white! shadow-sm transition hover:bg-primary-700"
           >
             Mural
           </Link>
@@ -27,7 +27,7 @@ export async function Navbar() {
           {isAuthenticated ? (
             <Link
               href="/profile"
-              className="rounded-md bg-primary px-3 py-2 text-white transition hover:bg-primary-700"
+              className="rounded-md bg-primary px-3 py-2 font-semibold text-white! shadow-sm transition hover:bg-primary-700"
             >
               Perfil
             </Link>
@@ -41,7 +41,7 @@ export async function Navbar() {
               </Link>
               <Link
                 href="/register"
-                className="rounded-md bg-primary px-3 py-2 text-white transition hover:bg-primary-700"
+                className="rounded-md bg-primary px-3 py-2 text-white! transition hover:bg-primary-700"
               >
                 Criar conta
               </Link>
