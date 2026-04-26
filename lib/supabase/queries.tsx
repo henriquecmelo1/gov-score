@@ -15,3 +15,54 @@ export async function getCompanySales(supabase: SupabaseClient, companyId: strin
     .eq("company_id", companyId)
     .order("created_at", { ascending: false });
 }
+
+export async function getPublicSales(supabase: SupabaseClient, search?: string) {
+  const selectAllSalesWithProfile = `
+    *,
+    profiles ( razao_social )
+  `;
+
+  const term = search?.trim();
+
+  // No search => all sales
+  if (!term) {
+    const { data, error } = await supabase
+      .from("sales")
+      .select(selectAllSalesWithProfile)
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return data;
+  }
+
+  // Search by exact debtor OR exact profile.razao_social
+  const [byDebtor, byProfile] = await Promise.all([
+    supabase
+      .from("sales")
+      .select(selectAllSalesWithProfile)
+      .ilike("entidade_devedora", `%${term}%`)
+      .order("created_at", { ascending: false }),
+
+    // !inner ensures the filter on profiles actually restricts sales rows
+    supabase
+      .from("sales")
+      .select(
+        `
+        *,
+        profiles!inner ( razao_social )
+      `
+      )
+      .ilike("profiles.razao_social", `%${term}%`, { foreignTable: "profiles" })
+      .order("created_at", { ascending: false }),
+  ]);
+
+  if (byDebtor.error) throw new Error(byDebtor.error.message);
+  if (byProfile.error) throw new Error(byProfile.error.message);
+
+  console.log(byDebtor)
+
+  const merged = [...(byDebtor.data ?? []), ...(byProfile.data ?? [])];
+  const uniqueById = new Map(merged.map((sale) => [sale.id, sale]));
+
+  return Array.from(uniqueById.values());
+}
