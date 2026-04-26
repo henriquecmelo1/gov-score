@@ -1,6 +1,7 @@
 "use client";
 
 import { Sale } from "@/lib/schemas/sales";
+import { ExternalLink, FileText } from "lucide-react";
 
 type SalesListProps = {
   sales: Sale[];
@@ -9,12 +10,19 @@ type SalesListProps = {
 };
 
 export function SalesList({ sales, onEdit, onDelete }: SalesListProps) {
+  function getFileName(value: string): string {
+    const sanitized = value.split("?")[0];
+    const lastPart = sanitized.split("/").pop();
+    return lastPart ? decodeURIComponent(lastPart) : value;
+  }
+
   function renderUrlCell(url: string | null | undefined) {
     if (!url) {
       return <span className="text-gray-400">-</span>;
     }
 
     const href = url.startsWith("http://") || url.startsWith("https://") ? url : undefined;
+    const fileName = getFileName(url);
 
     if (href) {
       return (
@@ -22,14 +30,26 @@ export function SalesList({ sales, onEdit, onDelete }: SalesListProps) {
           href={href}
           target="_blank"
           rel="noreferrer"
-          className="text-blue-600 hover:underline break-all"
+          className="group inline-flex w-full max-w-64 items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-2 py-1.5 text-gray-700 transition hover:border-blue-300 hover:bg-blue-50"
+          title={fileName}
         >
-          {url}
+          <span className="rounded bg-red-100 p-1">
+            <FileText className="h-3.5 w-3.5 text-red-600" aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1 truncate text-xs">{fileName}</span>
+          <ExternalLink className="h-3.5 w-3.5 shrink-0 text-gray-400 group-hover:text-blue-600" aria-hidden="true" />
         </a>
       );
     }
 
-    return <span className="text-gray-700 break-all">{url}</span>;
+    return (
+      <div className="inline-flex w-full max-w-64 items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-2 py-1.5 text-gray-700" title={fileName}>
+        <span className="rounded bg-red-100 p-1">
+          <FileText className="h-3.5 w-3.5 text-red-600" aria-hidden="true" />
+        </span>
+        <span className="min-w-0 flex-1 truncate text-xs">{fileName}</span>
+      </div>
+    );
   }
 
   if (sales.length === 0) {
@@ -49,8 +69,8 @@ export function SalesList({ sales, onEdit, onDelete }: SalesListProps) {
             <th className="p-4 font-semibold text-gray-900">Valor (R$)</th>
             <th className="p-4 font-semibold text-gray-900">Itens/Quantidade</th>
             <th className="p-4 font-semibold text-gray-900">Data de Entrega</th>
-            <th className="p-4 font-semibold text-gray-900">URL NF</th>
-            <th className="p-4 font-semibold text-gray-900">URL Contrato</th>
+            <th className="p-4 font-semibold text-gray-900">Nota Fiscal</th>
+            <th className="p-4 font-semibold text-gray-900">Contrato</th>
             <th className="p-4 font-semibold text-gray-900">Status</th>
             <th className="p-4 font-semibold text-gray-900">Ações</th>
           </tr>
