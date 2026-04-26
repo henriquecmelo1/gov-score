@@ -52,7 +52,7 @@ export async function getPublicSales(supabase: SupabaseClient, search?: string) 
         profiles!inner ( razao_social )
       `
       )
-      .ilike("profiles.razao_social", `%${term}%`, { foreignTable: "profiles" })
+      .ilike("profiles.razao_social", `%${term}%`)
       .order("created_at", { ascending: false }),
   ]);
 
