@@ -16,6 +16,7 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
   const [activeSale, setActiveSale] = useState<Sale | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState<Sale | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const closeModal = () => {
     setActiveSale(null);
@@ -30,6 +31,13 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
   const openEditModal = (sale: Sale) => {
     setActiveSale(sale);
     setIsCreateOpen(false);
+  };
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 2500);
   };
 
   const handleDelete = async () => {
@@ -84,8 +92,9 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
               <div className="p-6">
                 <NewSaleForm
                   sale={activeSale}
-                  onSuccess={() => {
+                  onSuccess={(mode) => {
                     closeModal();
+                    showToast(mode === "create" ? "Venda cadastrada com sucesso." : "Venda atualizada com sucesso.");
                     router.refresh();
                   }}
                 />
@@ -126,6 +135,12 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {toastMessage && (
+        <div className="fixed bottom-4 right-4 z-60 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800 shadow-lg" role="status" aria-live="polite">
+          {toastMessage}
         </div>
       )}
     </section>

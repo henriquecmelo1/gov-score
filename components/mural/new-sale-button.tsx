@@ -7,6 +7,14 @@ import { NewSaleForm } from "@/components/sales/new-sale-form";
 export function NewSaleButton() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 2500);
+  };
 
   return (
     <>
@@ -34,14 +42,21 @@ export function NewSaleButton() {
               </div>
               <div className="p-6">
                 <NewSaleForm
-                  onSuccess={() => {
+                  onSuccess={(mode) => {
                     setIsOpen(false);
+                    showToast(mode === "create" ? "Venda cadastrada com sucesso." : "Venda atualizada com sucesso.");
                     router.refresh();
                   }}
                 />
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {toastMessage && (
+        <div className="fixed bottom-4 right-4 z-60 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800 shadow-lg" role="status" aria-live="polite">
+          {toastMessage}
         </div>
       )}
     </>
