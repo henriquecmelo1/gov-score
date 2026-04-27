@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import Image from "next/image";
 
 export async function Navbar() {
   const supabase = await createClient();
@@ -13,7 +14,7 @@ export async function Navbar() {
     <header className="sticky top-0 z-50 border-b border-secondary bg-white/95 backdrop-blur">
       <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
         <Link href="/" className="text-xl font-semibold text-primary">
-          GovScore
+          <Image src="/govscore.png" alt="Logo ScoreGov" height={35} width={70} />
         </Link>
 
         <div className="flex items-center gap-1 text-sm font-medium">
