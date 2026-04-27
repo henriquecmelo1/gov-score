@@ -1,5 +1,12 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 
+export type PendingSaleAlert = {
+  id: string;
+  company_id: string;
+  entidade_devedora: string;
+  data_entrega: string;
+};
+
 export async function getCompanyProfile(supabase: SupabaseClient, userId: string) {
   return await supabase
     .from("profiles")
@@ -64,4 +71,19 @@ export async function getPublicSales(supabase: SupabaseClient, search?: string) 
   const uniqueById = new Map(merged.map((sale) => [sale.id, sale]));
   
   return Array.from(uniqueById.values());
+}
+
+export async function getPendingSalesOver30Days(supabase: SupabaseClient): Promise<PendingSaleAlert[]> {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const { data, error } = await supabase
+    .from("sales")
+    .select("id, company_id, entidade_devedora, data_entrega")
+    .eq("status", "pendente")
+    .lt("data_entrega", thirtyDaysAgo.toISOString())
+    .order("data_entrega", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as PendingSaleAlert[];
 }
