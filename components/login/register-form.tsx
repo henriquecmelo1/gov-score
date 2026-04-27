@@ -48,8 +48,7 @@ export function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4 max-w-md mx-auto p-6">
-      <h2 className="text-2xl font-bold text-gray-950">Cadastro de Empresa</h2>
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
 
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
