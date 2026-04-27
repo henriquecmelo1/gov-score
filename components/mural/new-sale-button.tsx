@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { NewSaleForm } from "@/components/sales/new-sale-form";
+import { Modal } from "@/components/ui/modal";
+import { Toast } from "@/components/ui/toast";
 
 export function NewSaleButton() {
   const router = useRouter();
@@ -27,38 +29,18 @@ export function NewSaleButton() {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="rounded-xl bg-white shadow-2xl">
-              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                <h3 className="text-lg font-semibold text-gray-900">Cadastrar Nova Venda</h3>
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="rounded-md px-3 py-1 text-sm font-medium text-gray-600 hover:bg-gray-100"
-                >
-                  Fechar
-                </button>
-              </div>
-              <div className="p-6">
-                <NewSaleForm
-                  onSuccess={(mode) => {
-                    setIsOpen(false);
-                    showToast(mode === "create" ? "Venda cadastrada com sucesso." : "Venda atualizada com sucesso.");
-                    router.refresh();
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <Modal title="Cadastrar Nova Venda" onClose={() => setIsOpen(false)}>
+          <NewSaleForm
+            onSuccess={(mode) => {
+              setIsOpen(false);
+              showToast(mode === "create" ? "Venda cadastrada com sucesso." : "Venda atualizada com sucesso.");
+              router.refresh();
+            }}
+          />
+        </Modal>
       )}
 
-      {toastMessage && (
-        <div className="fixed bottom-4 right-4 z-60 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800 shadow-lg" role="status" aria-live="polite">
-          {toastMessage}
-        </div>
-      )}
+      {toastMessage ? <Toast message={toastMessage} /> : null}
     </>
   );
 }
