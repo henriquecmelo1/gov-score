@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Sale } from "@/lib/schemas/sales";
 import { ExternalLink, FileText, MoreHorizontal } from "lucide-react";
 
@@ -11,6 +12,35 @@ type SalesListProps = {
 };
 
 export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesListProps) {
+  const [openMenuSaleId, setOpenMenuSaleId] = useState<string | null>(null);
+  const openMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+      if (!openMenuSaleId) return;
+      const target = event.target as Node | null;
+      if (target && openMenuRef.current && !openMenuRef.current.contains(target)) {
+        setOpenMenuSaleId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+    };
+  }, [openMenuSaleId]);
+
+  function closeMenu() {
+    setOpenMenuSaleId(null);
+  }
+
+  function canMarkAsPaid(status: Sale["status"]) {
+    return status === "pendente" || status === "enviado email";
+  }
+
   function getStatusLabel(status: Sale["status"]) {
     if (status === "pago") return "Pago";
     if (status === "enviado email") return "Aviso enviado";
@@ -92,38 +122,58 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
           {sales.map((sale) => (
             <tr key={sale.id} className="hover:bg-gray-50 transition">
               <td className="p-4 align-top">
-                <details className="relative">
-                  <summary
-                    className="list-none inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-gray-200 text-gray-600 transition hover:bg-gray-100"
+                <div className="relative" ref={openMenuSaleId === sale.id ? openMenuRef : undefined}>
+                  <button
+                    type="button"
+                    onClick={() => setOpenMenuSaleId((current) => (current === sale.id ? null : sale.id))}
+                    className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-gray-200 text-gray-600 transition hover:bg-gray-100"
                     aria-label="Abrir menu de ações"
+                    aria-expanded={openMenuSaleId === sale.id}
+                    aria-haspopup="menu"
                   >
                     <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-                  </summary>
+                  </button>
 
-                  <div className="absolute left-0 top-10 z-20 min-w-35 rounded-md border border-gray-200 bg-white p-1 shadow-lg">
-                    <button
-                      type="button"
-                      onClick={() => onChangeStatus(sale)}
-                      className="block w-full rounded px-3 py-2 text-left text-sm text-amber-700 transition hover:bg-amber-50"
-                    >
-                      Mudar status da venda
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onEdit(sale)}
-                      className="block w-full rounded px-3 py-2 text-left text-sm text-blue-700 transition hover:bg-blue-50"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onDelete(sale)}
-                      className="block w-full rounded px-3 py-2 text-left text-sm text-red-700 transition hover:bg-red-50"
-                    >
-                      Deletar
-                    </button>
-                  </div>
-                </details>
+                  {openMenuSaleId === sale.id && (
+                    <div className="absolute left-0 top-10 z-20 min-w-35 rounded-md border border-gray-200 bg-white p-1 shadow-lg" role="menu">
+                      {canMarkAsPaid(sale.status) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            closeMenu();
+                            onChangeStatus(sale);
+                          }}
+                          className="block w-full rounded px-3 py-2 text-left text-sm text-green-700 transition hover:bg-amber-50"
+                          role="menuitem"
+                        >
+                          Marcar como pago
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          closeMenu();
+                          onEdit(sale);
+                        }}
+                        className="block w-full rounded px-3 py-2 text-left text-sm text-blue-700 transition hover:bg-blue-50"
+                        role="menuitem"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          closeMenu();
+                          onDelete(sale);
+                        }}
+                        className="block w-full rounded px-3 py-2 text-left text-sm text-red-700 transition hover:bg-red-50"
+                        role="menuitem"
+                      >
+                        Deletar
+                      </button>
+                    </div>
+                  )}
+                </div>
               </td>
               <td className="p-4 text-gray-700">{sale.entidade_devedora}</td>
               <td className="p-4 text-gray-700">{sale.valor_nf}</td>

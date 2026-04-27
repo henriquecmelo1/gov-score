@@ -201,7 +201,7 @@ export async function deleteSaleAction(saleId: string) {
   return { success: true };
 }
 
-export async function updateSaleStatusAction(saleId: string, status: "pago" | "pendente") {
+export async function updateSaleStatusAction(saleId: string) {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -211,11 +211,28 @@ export async function updateSaleStatusAction(saleId: string, status: "pago" | "p
   const trimmedSaleId = saleId.trim();
   if (!trimmedSaleId) return { error: "Venda inválida" };
 
-  const normalizedStatus = status === "pago" ? "pago" : "pendente";
+  const { data: sale, error: saleError } = await supabase
+    .from("sales")
+    .select("id, status")
+    .eq("id", trimmedSaleId)
+    .eq("company_id", userId)
+    .single();
+
+  if (saleError || !sale) {
+    return { error: "Venda não encontrada" };
+  }
+
+  if (sale.status === "pago") {
+    return { error: "Esta venda já está paga." };
+  }
+
+  if (sale.status !== "pendente" && sale.status !== "enviado email") {
+    return { error: "Somente vendas pendentes ou com aviso enviado podem ser marcadas como pagas." };
+  }
 
   const { error } = await supabase
     .from("sales")
-    .update({ status: normalizedStatus })
+    .update({ status: "pago" })
     .eq("id", trimmedSaleId)
     .eq("company_id", userId);
 

@@ -17,7 +17,6 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState<Sale | null>(null);
   const [saleToChangeStatus, setSaleToChangeStatus] = useState<Sale | null>(null);
-  const [newStatus, setNewStatus] = useState<"pago" | "pendente">("pendente");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const closeModal = () => {
@@ -37,7 +36,6 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
 
   const openStatusModal = (sale: Sale) => {
     setSaleToChangeStatus(sale);
-    setNewStatus(sale.status === "pago" ? "pago" : "pendente");
   };
 
   const showToast = (message: string) => {
@@ -63,10 +61,10 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
   const handleStatusUpdate = async () => {
     if (!saleToChangeStatus) return;
 
-    const result = await updateSaleStatusAction(saleToChangeStatus.id, newStatus);
+    const result = await updateSaleStatusAction(saleToChangeStatus.id);
     if (result.success) {
       setSaleToChangeStatus(null);
-      showToast("Status da venda atualizado com sucesso.");
+      showToast("Venda marcada como paga com sucesso.");
       router.refresh();
       return;
     }
@@ -164,25 +162,15 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-xl bg-white shadow-2xl">
             <div className="border-b border-gray-200 px-6 py-4">
-              <h3 className="text-lg font-semibold text-gray-900">Mudar status da venda</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Confirmar mudança de status</h3>
             </div>
             <div className="space-y-4 px-6 py-5">
               <p className="text-sm text-gray-700">
-                Selecione o novo status para a venda de <strong>{saleToChangeStatus.entidade_devedora}</strong>.
+                Você deseja marcar como <strong>pago</strong> a venda de <strong>{saleToChangeStatus.entidade_devedora}</strong>?
               </p>
-
-              <div>
-                <label htmlFor="quick-status" className="block text-sm font-medium text-gray-700">Novo status</label>
-                <select
-                  id="quick-status"
-                  value={newStatus}
-                  onChange={(event) => setNewStatus(event.target.value === "pago" ? "pago" : "pendente")}
-                  className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
-                >
-                  <option value="pendente">Pendente</option>
-                  <option value="pago">Pago</option>
-                </select>
-              </div>
+              <p className="text-sm text-red-600">
+                Esta ação não pode ser desfeita.
+              </p>
             </div>
             <div className="flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
               <button
@@ -195,9 +183,9 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
               <button
                 type="button"
                 onClick={handleStatusUpdate}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
               >
-                Salvar status
+                Confirmar e marcar como pago
               </button>
             </div>
           </div>
