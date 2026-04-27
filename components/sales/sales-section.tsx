@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Sale } from "@/lib/schemas/sales";
 import { SalesList } from "./sales-list";
 import { NewSaleForm } from "./new-sale-form"; // O formulário que criamos anteriormente
-import { deleteSaleAction } from "@/actions/sales";
+import { deleteSaleAction, updateSaleStatusAction } from "@/actions/sales";
 
 type SalesSectionProps = {
   initialSales: Sale[];
@@ -16,6 +16,8 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
   const [activeSale, setActiveSale] = useState<Sale | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState<Sale | null>(null);
+  const [saleToChangeStatus, setSaleToChangeStatus] = useState<Sale | null>(null);
+  const [newStatus, setNewStatus] = useState<"pago" | "pendente">("pendente");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const closeModal = () => {
@@ -33,6 +35,11 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
     setIsCreateOpen(false);
   };
 
+  const openStatusModal = (sale: Sale) => {
+    setSaleToChangeStatus(sale);
+    setNewStatus(sale.status === "pago" ? "pago" : "pendente");
+  };
+
   const showToast = (message: string) => {
     setToastMessage(message);
     setTimeout(() => {
@@ -46,6 +53,20 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
     const result = await deleteSaleAction(saleToDelete.id);
     if (result.success) {
       setSaleToDelete(null);
+      router.refresh();
+      return;
+    }
+
+    alert(result.error);
+  };
+
+  const handleStatusUpdate = async () => {
+    if (!saleToChangeStatus) return;
+
+    const result = await updateSaleStatusAction(saleToChangeStatus.id, newStatus);
+    if (result.success) {
+      setSaleToChangeStatus(null);
+      showToast("Status da venda atualizado com sucesso.");
       router.refresh();
       return;
     }
@@ -69,6 +90,7 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
         sales={initialSales}
         onEdit={openEditModal}
         onDelete={setSaleToDelete}
+        onChangeStatus={openStatusModal}
       />
 
       {(isCreateOpen || activeSale) && (
@@ -132,6 +154,50 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
                 className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
               >
                 Deletar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {saleToChangeStatus && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white shadow-2xl">
+            <div className="border-b border-gray-200 px-6 py-4">
+              <h3 className="text-lg font-semibold text-gray-900">Mudar status da venda</h3>
+            </div>
+            <div className="space-y-4 px-6 py-5">
+              <p className="text-sm text-gray-700">
+                Selecione o novo status para a venda de <strong>{saleToChangeStatus.entidade_devedora}</strong>.
+              </p>
+
+              <div>
+                <label htmlFor="quick-status" className="block text-sm font-medium text-gray-700">Novo status</label>
+                <select
+                  id="quick-status"
+                  value={newStatus}
+                  onChange={(event) => setNewStatus(event.target.value === "pago" ? "pago" : "pendente")}
+                  className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+                >
+                  <option value="pendente">Pendente</option>
+                  <option value="pago">Pago</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setSaleToChangeStatus(null)}
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleStatusUpdate}
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Salvar status
               </button>
             </div>
           </div>

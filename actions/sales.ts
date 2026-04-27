@@ -200,3 +200,29 @@ export async function deleteSaleAction(saleId: string) {
   revalidatePath("/profile");
   return { success: true };
 }
+
+export async function updateSaleStatusAction(saleId: string, status: "pago" | "pendente") {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Não autorizado" };
+
+  const userId = user.id;
+  const trimmedSaleId = saleId.trim();
+  if (!trimmedSaleId) return { error: "Venda inválida" };
+
+  const normalizedStatus = status === "pago" ? "pago" : "pendente";
+
+  const { error } = await supabase
+    .from("sales")
+    .update({ status: normalizedStatus })
+    .eq("id", trimmedSaleId)
+    .eq("company_id", userId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/profile");
+  return { success: true };
+}

@@ -7,9 +7,10 @@ type SalesListProps = {
   sales: Sale[];
   onEdit: (sale: Sale) => void;
   onDelete: (sale: Sale) => void;
+  onChangeStatus: (sale: Sale) => void;
 };
 
-export function SalesList({ sales, onEdit, onDelete }: SalesListProps) {
+export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesListProps) {
   function getStatusLabel(status: Sale["status"]) {
     if (status === "pago") return "Pago";
     if (status === "enviado email") return "Aviso enviado";
@@ -100,6 +101,13 @@ export function SalesList({ sales, onEdit, onDelete }: SalesListProps) {
                   </summary>
 
                   <div className="absolute left-0 top-10 z-20 min-w-35 rounded-md border border-gray-200 bg-white p-1 shadow-lg">
+                    <button
+                      type="button"
+                      onClick={() => onChangeStatus(sale)}
+                      className="block w-full rounded px-3 py-2 text-left text-sm text-amber-700 transition hover:bg-amber-50"
+                    >
+                      Mudar status da venda
+                    </button>
                     <button
                       type="button"
                       onClick={() => onEdit(sale)}
