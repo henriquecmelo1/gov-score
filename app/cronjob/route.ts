@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPendingSalesOver30Days } from "@/lib/supabase/queries";
+import { notifyOverdueSales } from "@/actions/notify-overdue";
 
 export async function GET(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
@@ -30,14 +31,20 @@ export async function GET(request: NextRequest) {
     })
   );
 
+  const overdueSalesWithEmails = overdueSales.map((sale) => ({
+    id: sale.id,
+    entidade_devedora: sale.entidade_devedora,
+    company_id: sale.company_id,
+    owner_email: owners.find((owner) => owner.company_id === sale.company_id)?.email ?? null,
+  }));
+
+  // Send email notifications
+  const emailNotificationResult = await notifyOverdueSales(overdueSalesWithEmails);
+
   return Response.json({
     checked_at: new Date().toISOString(),
     total_overdue_pending_sales: overdueSales.length,
-    overdue_sales: overdueSales.map((sale) => ({
-      id: sale.id,
-      entidade_devedora: sale.entidade_devedora,
-      company_id: sale.company_id,
-      owner_email: owners.find((owner) => owner.company_id === sale.company_id)?.email ?? null,
-    })),
+    overdue_sales: overdueSalesWithEmails,
+    email_notifications: emailNotificationResult,
   });
 }
