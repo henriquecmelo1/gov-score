@@ -4,8 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Sale } from "@/lib/schemas/sales";
 import { SalesList } from "./sales-list";
-import { NewSaleForm } from "./new-sale-form"; // O formulário que criamos anteriormente
+import { NewSaleForm } from "./new-sale-form";
 import { deleteSaleAction, updateSaleStatusAction } from "@/actions/sales";
+import { Modal } from "@/components/ui/modal";
+import { ConfirmationModal } from "@/components/ui/confirmation-modal";
+import { Toast } from "@/components/ui/toast";
 
 type SalesSectionProps = {
   initialSales: Sale[];
@@ -92,111 +95,43 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
       />
 
       {(isCreateOpen || activeSale) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="rounded-xl bg-white shadow-2xl">
-              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {activeSale ? "Editar Venda" : "Cadastrar Nova Venda"}
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="rounded-md px-3 py-1 text-sm font-medium text-gray-600 hover:bg-gray-100"
-                >
-                  Fechar
-                </button>
-              </div>
-              <div className="p-6">
-                <NewSaleForm
-                  sale={activeSale}
-                  onSuccess={(mode) => {
-                    closeModal();
-                    showToast(mode === "create" ? "Venda cadastrada com sucesso." : "Venda atualizada com sucesso.");
-                    router.refresh();
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <Modal title={activeSale ? "Editar Venda" : "Cadastrar Nova Venda"} onClose={closeModal}>
+          <NewSaleForm
+            sale={activeSale}
+            onSuccess={(mode) => {
+              closeModal();
+              showToast(mode === "create" ? "Venda cadastrada com sucesso." : "Venda atualizada com sucesso.");
+              router.refresh();
+            }}
+          />
+        </Modal>
       )}
 
       {saleToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white shadow-2xl">
-            <div className="border-b border-gray-200 px-6 py-4">
-              <h3 className="text-lg font-semibold text-gray-900">Confirmar exclusão</h3>
-            </div>
-            <div className="space-y-4 px-6 py-5">
-              <p className="text-sm text-gray-700">
-                Tem certeza que deseja deletar a venda de <strong>{saleToDelete.entidade_devedora}</strong>?
-              </p>
-              <p className="text-sm text-gray-500">
-                Esta ação não pode ser desfeita.
-              </p>
-            </div>
-            <div className="flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
-              <button
-                type="button"
-                onClick={() => setSaleToDelete(null)}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-              >
-                Deletar
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          title="Confirmar exclusão"
+          description={`Tem certeza que deseja deletar a venda de ${saleToDelete.entidade_devedora}?`}
+          warningText="Esta ação não pode ser desfeita."
+          confirmLabel="Deletar"
+          confirmClassName="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          onCancel={() => setSaleToDelete(null)}
+          onConfirm={handleDelete}
+        />
       )}
 
       {saleToChangeStatus && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white shadow-2xl">
-            <div className="border-b border-gray-200 px-6 py-4">
-              <h3 className="text-lg font-semibold text-gray-900">Confirmar mudança de status</h3>
-            </div>
-            <div className="space-y-4 px-6 py-5">
-              <p className="text-sm text-gray-700">
-                Você deseja marcar como <strong>pago</strong> a venda de <strong>{saleToChangeStatus.entidade_devedora}</strong>?
-              </p>
-              <p className="text-sm text-red-600">
-                Esta ação não pode ser desfeita.
-              </p>
-            </div>
-            <div className="flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
-              <button
-                type="button"
-                onClick={() => setSaleToChangeStatus(null)}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleStatusUpdate}
-                className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-              >
-                Confirmar e marcar como pago
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmationModal
+          title="Confirmar mudança de status"
+          description={`Você deseja marcar como pago a venda de ${saleToChangeStatus.entidade_devedora}?`}
+          warningText="Esta ação não pode ser desfeita."
+          confirmLabel="Confirmar e marcar como pago"
+          confirmClassName="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          onCancel={() => setSaleToChangeStatus(null)}
+          onConfirm={handleStatusUpdate}
+        />
       )}
 
-      {toastMessage && (
-        <div className="fixed bottom-4 right-4 z-60 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800 shadow-lg" role="status" aria-live="polite">
-          {toastMessage}
-        </div>
-      )}
+      {toastMessage ? <Toast message={toastMessage} /> : null}
     </section>
   );
 }

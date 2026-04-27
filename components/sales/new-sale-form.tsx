@@ -7,17 +7,12 @@ import { FileText, X } from "lucide-react";
 import { saleSchema, type SaleInput } from "@/lib/schemas/inputs/sales";
 import { createSaleAction, updateSaleAction } from "@/actions/sales";
 import type { Sale } from "@/lib/schemas/sales";
+import { getFileNameFromUrl } from "@/lib/formatters";
 
 type SaleFormProps = {
   onSuccess: (mode: "create" | "update") => void;
   sale?: Sale | null;
 };
-
-function getFileNameFromUrl(url: string): string {
-  const sanitized = url.split("?")[0];
-  const fileName = sanitized.split("/").pop();
-  return fileName ? decodeURIComponent(fileName) : "arquivo.pdf";
-}
 
 function formatCentsToBRL(raw: string): string {
   const digits = raw.replace(/\D/g, "");
