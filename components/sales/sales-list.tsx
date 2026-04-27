@@ -10,6 +10,18 @@ type SalesListProps = {
 };
 
 export function SalesList({ sales, onEdit, onDelete }: SalesListProps) {
+  function getStatusLabel(status: Sale["status"]) {
+    if (status === "pago") return "Pago";
+    if (status === "enviado email") return "Aviso enviado";
+    return "Pagamento atrasado menos de 30 dias";
+  }
+
+  function getStatusClasses(status: Sale["status"]) {
+    if (status === "pago") return "bg-emerald-100 text-emerald-800";
+    if (status === "enviado email") return "bg-sky-100 text-sky-800";
+    return "bg-amber-100 text-amber-800";
+  }
+
   function getFileName(value: string): string {
     const sanitized = value.split("?")[0];
     const lastPart = sanitized.split("/").pop();
@@ -110,11 +122,9 @@ export function SalesList({ sales, onEdit, onDelete }: SalesListProps) {
               <td className="p-4 text-gray-700">
                 {new Date(sale.data_entrega).toLocaleDateString('pt-BR')}
               </td>
-              <td className="p-4">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  sale.status === 'Pago' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                }`}>
-                  {sale.status}
+              <td className="p-4 text-center align-middle">
+                <span className={`inline-flex items-center justify-center rounded-md px-3 py-1.5 text-center text-xs font-semibold leading-tight ${getStatusClasses(sale.status)}`}>
+                  {getStatusLabel(sale.status)}
                 </span>
               </td>
               <td className="p-4 text-gray-700">{sale.itens_quantidade}</td>

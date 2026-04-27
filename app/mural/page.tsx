@@ -3,6 +3,18 @@ import { SearchFilter } from "@/components/mural/search-filter";
 import { NewSaleButton } from "@/components/mural/new-sale-button";
 import { createClient } from "@/lib/supabase/server";
 
+function getStatusLabel(status: string) {
+    if (status === "pago") return "Pago";
+    if (status === "enviado email") return "Aviso enviado";
+    return "Pagamento atrasado menos de 30 dias";
+}
+
+function getStatusClasses(status: string) {
+    if (status === "pago") return "bg-emerald-100 text-emerald-800";
+    if (status === "enviado email") return "bg-sky-100 text-sky-800";
+    return "bg-amber-100 text-amber-800";
+}
+
 export default async function MuralPage({
     searchParams,
 }: {
@@ -57,14 +69,9 @@ export default async function MuralPage({
                                                 ? new Date(sale.data_entrega).toLocaleDateString("pt-BR")
                                                 : "-"}
                                         </td>
-                                        <td className="p-4">
-                                            <span
-                                                className={`px-2 py-1 rounded-full text-xs font-medium ${sale.status === "Pago"
-                                                        ? "bg-green-100 text-green-700"
-                                                        : "bg-yellow-100 text-yellow-700"
-                                                    }`}
-                                            >
-                                                {sale.status}
+                                        <td className="p-4 text-center align-middle">
+                                            <span className={`inline-flex items-center justify-center rounded-md px-3 py-1.5 text-center text-xs font-semibold leading-tight ${getStatusClasses(String(sale.status))}`}>
+                                                {getStatusLabel(String(sale.status))}
                                             </span>
                                         </td>
                                     </tr>

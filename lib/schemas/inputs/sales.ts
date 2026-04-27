@@ -6,7 +6,7 @@ export const saleSchema = z.object({
   valor_nf: z.string().min(1, "O valor é obrigatório"),
   data_entrega: z.string().min(1, "A data de entrega é obrigatória"),
   numero_ordem: z.string().min(1, "O número da ordem é obrigatório"),
-  status: z.enum(["pago", "pendente"]),
+  status: z.enum(["pendente", "enviado email", "pago"]),
   nf_file: z.any().optional(),
   contrato_file: z.any().optional(),
 });
