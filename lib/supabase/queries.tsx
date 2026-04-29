@@ -87,3 +87,19 @@ export async function getPendingSalesOver30Days(supabase: SupabaseClient): Promi
   if (error) throw new Error(error.message);
   return (data ?? []) as PendingSaleAlert[];
 }
+
+export async function markSalesAsEmailSent(supabase: SupabaseClient, saleIds: string[]) {
+  if (saleIds.length === 0) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("sales")
+    .update({ status: "enviado email" })
+    .in("id", saleIds)
+    .eq("status", "pendente")
+    .select("id, status");
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}

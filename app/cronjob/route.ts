@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getPendingSalesOver30Days } from "@/lib/supabase/queries";
+import { getPendingSalesOver30Days, markSalesAsEmailSent } from "@/lib/supabase/queries";
 import { notifyOverdueSales } from "@/actions/notify-overdue";
 
 export async function GET(request: NextRequest) {
@@ -41,10 +41,26 @@ export async function GET(request: NextRequest) {
   // Send email notifications
   const emailNotificationResult = await notifyOverdueSales(overdueSalesWithEmails);
 
+  let updatedSales: Array<{ id: string; status: string }> = [];
+
+  if (emailNotificationResult.success) {
+    const notificationResults = emailNotificationResult.results ?? [];
+    const successfulEmails = new Set(
+      notificationResults.filter((result) => result.success).map((result) => result.email)
+    );
+
+    const saleIdsWithSentEmail = overdueSalesWithEmails
+      .filter((sale) => sale.owner_email && successfulEmails.has(sale.owner_email))
+      .map((sale) => sale.id);
+
+    updatedSales = await markSalesAsEmailSent(supabase, saleIdsWithSentEmail);
+  }
+
   return Response.json({
     checked_at: new Date().toISOString(),
     total_overdue_pending_sales: overdueSales.length,
     overdue_sales: overdueSalesWithEmails,
     email_notifications: emailNotificationResult,
+    updated_sales_to_email_sent: updatedSales,
   });
 }
