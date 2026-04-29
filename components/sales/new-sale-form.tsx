@@ -43,7 +43,6 @@ function getDefaultValues(sale?: Sale | null): SaleInput {
     data_entrega: sale ? sale.data_entrega.slice(0, 10) : "",
     numero_ordem: sale?.numero_ordem ?? "",
     itens_quantidade: sale?.itens_quantidade ?? "",
-    status: sale?.status ?? "pendente",
     nf_file: undefined,
     contrato_file: undefined,
   };
@@ -81,7 +80,6 @@ export function NewSaleForm({ onSuccess, sale }: SaleFormProps) {
     formData.append("data_entrega", data.data_entrega);
     formData.append("numero_ordem", data.numero_ordem);
     formData.append("itens_quantidade", data.itens_quantidade);
-    formData.append("status", data.status);
 
     const nfFile = data.nf_file?.[0];
     const contratoFile = data.contrato_file?.[0];
@@ -165,16 +163,6 @@ export function NewSaleForm({ onSuccess, sale }: SaleFormProps) {
           <label className="block text-sm font-medium text-gray-700">Data de Entrega</label>
           <input type="date" {...register("data_entrega")} className="w-full p-2 border rounded border-gray-400 bg-white text-gray-900" />
           {errors.data_entrega && <p className="text-red-500 text-xs">{errors.data_entrega.message}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Status</label>
-          <select {...register("status")} className="w-full p-2 border rounded border-gray-400 bg-white text-gray-900">
-            <option value="pendente">Pagamento atrasado menos de 30 dias</option>
-            <option value="enviado email">Aviso enviado</option>
-            <option value="pago">Pago</option>
-          </select>
-          {errors.status && <p className="text-red-500 text-xs">{errors.status.message}</p>}
         </div>
       </div>
 

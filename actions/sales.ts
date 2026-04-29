@@ -3,13 +3,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-const validStatuses = new Set(["pendente", "enviado email", "pago"]);
-
-function resolveStatus(rawStatus: FormDataEntryValue | null, fallback = "pendente") {
-  const status = String(rawStatus ?? "").trim().toLowerCase();
-  return validStatuses.has(status) ? status : fallback;
-}
-
 function sanitizeStorageFileName(originalName: string) {
   const trimmed = originalName.trim();
   const lastDot = trimmed.lastIndexOf(".");
@@ -74,7 +67,6 @@ export async function createSaleAction(formData: FormData) {
         data_entrega: formData.get("data_entrega"),
         numero_ordem: formData.get("numero_ordem"),
         itens_quantidade: formData.get("itens_quantidade"),
-        status: resolveStatus(formData.get("status"), "pendente"),
       })
       .select("id")
       .single();
@@ -143,7 +135,6 @@ export async function updateSaleAction(formData: FormData) {
       data_entrega: formData.get("data_entrega"),
       numero_ordem: formData.get("numero_ordem"),
       itens_quantidade: formData.get("itens_quantidade"),
-      status: resolveStatus(formData.get("status"), sale.status),
       nf_url: nfPath,
       contrato_url: contratoPath,
     }).eq("id", saleId).eq("company_id", userId);
