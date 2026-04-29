@@ -23,7 +23,7 @@ export function NewSaleButton() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="h-10 shrink-0 whitespace-nowrap rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700"
+        className="h-10 shrink-0 whitespace-nowrap rounded-md bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
       >
         Nova venda
       </button>

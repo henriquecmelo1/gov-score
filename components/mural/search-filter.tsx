@@ -22,11 +22,11 @@ export function SearchFilter() {
   }
 
   return (
-    <div className="relative w-full max-w-sm">
+    <div className="relative w-full">
       <input
         type="text"
         placeholder="Buscar empresa ou prefeitura..."
-        className="w-full p-2 border rounded-md"
+        className="h-10 w-full rounded-md border px-3 text-base"
         defaultValue={searchParams.get("search") || ""}
         onChange={(e) => handleSearch(e.target.value)}
       />
