@@ -50,7 +50,7 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
   }
 
   return (
-    <div className="overflow-visible rounded-lg border border-gray-200">
+    <div className="w-full overflow-x-auto rounded-lg border border-gray-200">
       <table className="w-full bg-white border-collapse">
         <thead className="bg-gray-50 border-b border-gray-200">
           <tr>
