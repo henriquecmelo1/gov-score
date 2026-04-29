@@ -50,7 +50,7 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
+    <div className="overflow-visible rounded-lg border border-gray-200">
       <table className="w-full bg-white border-collapse">
         <thead className="bg-gray-50 border-b border-gray-200">
           <tr>
@@ -89,7 +89,7 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
                             closeMenu();
                             onChangeStatus(sale);
                           }}
-                          className="block w-full rounded px-3 py-2 text-left text-sm text-green-700 transition hover:bg-amber-50"
+                          className="block w-full rounded px-3 py-2 text-left text-sm text-green-700 transition hover:bg-green-50"
                           role="menuitem"
                         >
                           Marcar como pago
