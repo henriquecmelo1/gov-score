@@ -9,6 +9,7 @@ import { deleteSaleAction, updateSaleStatusAction } from "@/actions/sales";
 import { Modal } from "@/components/ui/modal";
 import { ConfirmationModal } from "@/components/ui/confirmation-modal";
 import { Toast } from "@/components/ui/toast";
+import { PlusIcon } from "lucide-react";
 
 type SalesSectionProps = {
   initialSales: Sale[];
@@ -81,8 +82,9 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
         <h2 className="text-xl font-semibold text-gray-900">Minhas Vendas</h2>
         <button 
           onClick={openCreateModal}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:opacity-90 transition"
+          className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
         >
+          <PlusIcon className="h-4 w-4" aria-hidden="true" />
           Nova Venda
         </button>
       </div>
