@@ -1,4 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import type { Debtor, DebtorCreateInput, DebtorUpdateInput } from "@/lib/schemas/debtors";
 
 export type PendingSaleAlert = {
   id: string;
@@ -42,7 +43,6 @@ export async function getPublicSales(supabase: SupabaseClient, search?: string) 
     return data;
   }
 
-  // Search by exact debtor OR exact profile.razao_social
   const [byDebtor, byProfile] = await Promise.all([
     supabase
       .from("sales")
@@ -102,4 +102,93 @@ export async function markSalesAsEmailSent(supabase: SupabaseClient, saleIds: st
 
   if (error) throw new Error(error.message);
   return data ?? [];
+}
+
+export async function getDebtorById(supabase: SupabaseClient, debtorId: string) {
+  const { data, error } = await supabase
+    .from("debtors")
+    .select("*")
+    .eq("id", debtorId)
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data as Debtor;
+}
+
+export async function searchDebtors(supabase: SupabaseClient, term?: string) {
+  const q = term?.trim();
+
+  if (!q) {
+    const { data, error } = await supabase
+      .from("debtors")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (error) throw new Error(error.message);
+    return data as Debtor[];
+  }
+
+  const { data, error } = await supabase
+    .from("debtors")
+    .select("*")
+    .ilike("name", `%${q}%`)
+    .order("name", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return data as Debtor[];
+}
+
+export async function createDebtor(
+  supabase: SupabaseClient,
+  payload: DebtorCreateInput
+) {
+  const { data, error } = await supabase
+    .from("debtors")
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data as Debtor;
+}
+
+export async function updateDebtor(
+  supabase: SupabaseClient,
+  debtorId: string,
+  payload: DebtorUpdateInput
+) {
+  const { data, error } = await supabase
+    .from("debtors")
+    .update(payload)
+    .eq("id", debtorId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data as Debtor;
+}
+
+export async function getSalesByDebtorId(supabase: SupabaseClient, debtorId: string) {
+  const selectAllSalesWithProfile = `
+    *,
+    profiles ( razao_social )
+  `;
+
+  const { data, error } = await supabase
+    .from("sales")
+    .select(selectAllSalesWithProfile)
+    .eq("entidade_devedora", debtorId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function getDebtorWithSales(supabase: SupabaseClient, debtorId: string) {
+  const [debtorRes, salesRes] = await Promise.all([
+    getDebtorById(supabase, debtorId),
+    getSalesByDebtorId(supabase, debtorId),
+  ]);
+
+  return { debtor: debtorRes, sales: salesRes };
 }

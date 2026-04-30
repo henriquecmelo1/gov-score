@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
-import { LayoutGrid, LogIn, UserPlus, UserRound } from "lucide-react";
+import { LayoutGrid, LogIn, UserPlus, UserRound, Users } from "lucide-react";
 
 const outlinedPrimaryButtonClass = "inline-flex items-center gap-2 rounded-md border border-primary bg-white px-3 py-2 font-semibold text-primary transition hover:bg-primary-50";
 
@@ -30,13 +30,20 @@ export async function Navbar() {
           </Link>
 
           {isAuthenticated ? (
-            <Link
-              href="/profile"
-              className={outlinedPrimaryButtonClass}
-            >
-              <UserRound className="h-4 w-4" aria-hidden="true" />
-              Perfil
-            </Link>
+            <>
+              <Link href="/debtors" className={outlinedPrimaryButtonClass}>
+                <Users className="h-4 w-4" aria-hidden="true" />
+                Devedores
+              </Link>
+
+              <Link
+                href="/profile"
+                className={outlinedPrimaryButtonClass}
+              >
+                <UserRound className="h-4 w-4" aria-hidden="true" />
+                Perfil
+              </Link>
+            </>
           ) : (
             <>
               <Link
