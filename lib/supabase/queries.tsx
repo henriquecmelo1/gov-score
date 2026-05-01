@@ -24,53 +24,19 @@ export async function getCompanySales(supabase: SupabaseClient, companyId: strin
     .order("created_at", { ascending: false });
 }
 
-export async function getPublicSales(supabase: SupabaseClient, search?: string) {
+export async function getPublicSales(supabase: SupabaseClient) {
   const selectAllSalesWithProfile = `
     *,
     profiles ( razao_social )
   `;
 
-  const term = search?.trim();
+  const { data, error } = await supabase
+    .from("sales")
+    .select(selectAllSalesWithProfile)
+    .order("created_at", { ascending: false });
 
-  // No search => all sales
-  if (!term) {
-    const { data, error } = await supabase
-      .from("sales")
-      .select(selectAllSalesWithProfile)
-      .order("created_at", { ascending: false });
-
-    if (error) throw new Error(error.message);
-    return data;
-  }
-
-  const [byDebtor, byProfile] = await Promise.all([
-    supabase
-      .from("sales")
-      .select(selectAllSalesWithProfile)
-      .ilike("entidade_devedora", `%${term}%`)
-      .order("created_at", { ascending: false }),
-
-    // !inner ensures the filter on profiles actually restricts sales rows
-    supabase
-      .from("sales")
-      .select(
-        `
-        *,
-        profiles!inner ( razao_social )
-      `
-      )
-      .ilike("profiles.razao_social", `%${term}%`)
-      .order("created_at", { ascending: false }),
-  ]);
-
-  if (byDebtor.error) throw new Error(byDebtor.error.message);
-  if (byProfile.error) throw new Error(byProfile.error.message);
-
-
-  const merged = [...(byDebtor.data ?? []), ...(byProfile.data ?? [])];
-  const uniqueById = new Map(merged.map((sale) => [sale.id, sale]));
-  
-  return Array.from(uniqueById.values());
+  if (error) throw new Error(error.message);
+  return data;
 }
 
 export async function getPendingSalesOver30Days(supabase: SupabaseClient): Promise<PendingSaleAlert[]> {
@@ -109,10 +75,10 @@ export async function getDebtorById(supabase: SupabaseClient, debtorId: string) 
     .from("debtors")
     .select("*")
     .eq("id", debtorId)
-    .single();
+    .maybeSingle();
 
   if (error) throw new Error(error.message);
-  return data as Debtor;
+  return (data as Debtor | null) ?? null;
 }
 
 export async function searchDebtors(supabase: SupabaseClient, term?: string) {

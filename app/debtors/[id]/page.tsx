@@ -1,15 +1,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { getDebtorWithSales } from "@/lib/supabase/queries";
-import { SalesList } from "@/components/sales/sales-list";
-import { Sale } from "@/lib/schemas/sales";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { DebtorSalesList } from "@/components/debtors/debtor-sales-list";
 
-type Params = { params: { id: string } };
+type Params = { params: Promise<{ id: string }> };
 
 export default async function DebtorProfile({ params }: Params) {
   const supabase = await createClient();
-  const id = params.id;
+  const { id } = await params;
   const { debtor, sales } = await getDebtorWithSales(supabase, id);
+
+  if (!debtor) {
+    notFound();
+  }
 
   return (
     <div className="space-y-6">
@@ -25,7 +29,7 @@ export default async function DebtorProfile({ params }: Params) {
 
       <div>
         <h2 className="text-lg font-medium mb-3">Vendas do devedor</h2>
-        <SalesList sales={(sales ?? []) as Sale[]} onEdit={() => {}} onDelete={() => {}} onChangeStatus={() => {}} />
+        <DebtorSalesList sales={(sales ?? []) as any} />
       </div>
     </div>
   );

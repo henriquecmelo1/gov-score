@@ -6,6 +6,9 @@ type MuralSale = Sale & {
 	profiles?: {
 		razao_social?: string | null;
 	} | null;
+	debtors?: {
+		name?: string | null;
+	} | null;
 };
 
 type MuralListProps = {
@@ -31,7 +34,7 @@ export function MuralList({ sales }: MuralListProps) {
 							sales.map((sale) => (
 								<tr key={sale.id} className="transition-colors hover:bg-primary-50">
 									<td className="p-4 font-medium">{sale.profiles?.razao_social ?? "-"}</td>
-									<td className="p-4">{sale.entidade_devedora}</td>
+									<td className="p-4">{sale.debtors?.name ?? sale.entidade_devedora}</td>
 									<td className="p-4">{formatCurrencyBRL(sale.valor_nf)}</td>
 									<td className="p-4">{formatDateBR(sale.data_entrega)}</td>
 									<td className="p-4 text-center align-middle">
