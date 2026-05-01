@@ -17,6 +17,12 @@ export default function Home() {
           Ir para o Mural
         </Link>
         <Link
+          href="/debtors"
+          className="rounded-md border border-primary px-5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary-50"
+        >
+          Ir para página de Clientes
+        </Link>
+        <Link
           href="/profile"
           className="rounded-md border border-primary px-5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary-50"
         >

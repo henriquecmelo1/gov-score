@@ -95,7 +95,7 @@ export function DebtorForm({ onSuccess }: Props) {
       </div>
 
       <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400">
-        {loading ? "Criando..." : "Criar Devedor"}
+        {loading ? "Criando..." : "Criar Cliente"}
       </button>
     </form>
   );

@@ -17,7 +17,7 @@ export function DebtorSalesList({ sales }: DebtorSalesListProps) {
   if (!sales || sales.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-8 text-center text-gray-500">
-        Nenhuma venda registrada para este devedor.
+        Nenhuma venda registrada para este cliente.
       </div>
     );
   }
@@ -27,7 +27,7 @@ export function DebtorSalesList({ sales }: DebtorSalesListProps) {
       <table className="w-full border-collapse">
         <thead className="border-b border-gray-200 bg-gray-50">
           <tr>
-            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Empresa</th>
+            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Vendedor</th>
             <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Valor</th>
             <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Entrega</th>
             <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Status</th>

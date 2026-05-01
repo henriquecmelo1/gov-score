@@ -12,7 +12,7 @@ type DebtorRow = {
 
 export function DebtorList({ debtors }: { debtors: DebtorRow[] }) {
   if (!debtors || debtors.length === 0) {
-    return <div className="text-gray-500">Nenhum devedor encontrado.</div>;
+    return <div className="text-gray-500">Nenhum cliente encontrado.</div>;
   }
 
   return (

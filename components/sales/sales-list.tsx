@@ -82,7 +82,7 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
         <thead className="bg-gray-50 border-b border-gray-200">
           <tr>
             <th className="px-4 py-2 font-semibold text-gray-900 w-0 text-center">Ações</th>
-            <th className="px-4 py-2 font-semibold text-gray-900 text-center">Entidade Devedora</th>
+            <th className="px-4 py-2 font-semibold text-gray-900 text-center">Cliente</th>
             <th className="px-4 py-2 font-semibold text-gray-900 text-center">Valor (R$)</th>
             <th className="px-4 py-2 font-semibold text-gray-900 text-center">Data de Entrega</th>
             <th className="px-4 py-2 font-semibold text-gray-900 text-center">Status</th>

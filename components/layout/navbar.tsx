@@ -29,13 +29,13 @@ export async function Navbar() {
             Mural
           </Link>
 
+          <Link href="/debtors" className={outlinedPrimaryButtonClass}>
+            <Users className="h-4 w-4" aria-hidden="true" />
+            Clientes
+          </Link>
+
           {isAuthenticated ? (
             <>
-              <Link href="/debtors" className={outlinedPrimaryButtonClass}>
-                <Users className="h-4 w-4" aria-hidden="true" />
-                Devedores
-              </Link>
-
               <Link
                 href="/profile"
                 className={outlinedPrimaryButtonClass}

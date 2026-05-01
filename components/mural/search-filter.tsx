@@ -25,7 +25,7 @@ export function SearchFilter() {
     <div className="relative w-full">
       <input
         type="text"
-        placeholder="Buscar empresa ou prefeitura..."
+        placeholder="Buscar vendedor ou cliente..."
         className="h-10 w-full rounded-md border px-3 text-base"
         defaultValue={searchParams.get("search") || ""}
         onChange={(e) => handleSearch(e.target.value)}

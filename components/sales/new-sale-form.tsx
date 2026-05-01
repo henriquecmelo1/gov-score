@@ -155,7 +155,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Devedor</label>
+          <label className="block text-sm font-medium text-gray-700">Cliente</label>
           <div className="relative">
             <input
               type="text"
@@ -176,7 +176,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
                 });
               }}
               className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 pr-10 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              placeholder="Digite para buscar devedor"
+              placeholder="Digite para buscar cliente"
               autoComplete="off"
               role="combobox"
               aria-expanded={isDebtorOpen}
@@ -220,7 +220,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
               href="/debtors"
               className="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
             >
-              Adicionar Entidade Devedora
+              Adicionar Cliente
             </Link>
           </div>
           <input type="hidden" {...register("entidade_devedora")} />

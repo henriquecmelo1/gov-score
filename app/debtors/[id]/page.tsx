@@ -19,7 +19,7 @@ export default async function DebtorProfile({ params }: Params) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">{debtor?.name ?? "Devedor"}</h1>
+          <h1 className="text-2xl font-semibold">{debtor?.name ?? "Cliente"}</h1>
           <p className="text-sm text-gray-600">{debtor?.email}</p>
         </div>
         <div>
@@ -28,7 +28,7 @@ export default async function DebtorProfile({ params }: Params) {
       </div>
 
       <div>
-        <h2 className="text-lg font-medium mb-3">Vendas do devedor</h2>
+        <h2 className="text-lg font-medium mb-3">Vendas do cliente</h2>
         <DebtorSalesList sales={(sales ?? []) as any} />
       </div>
     </div>

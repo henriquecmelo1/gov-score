@@ -29,6 +29,6 @@ export async function createDebtorAction(data: DebtorCreateInput) {
       // @ts-expect-error - narrowing for message
       return { error: (err as any).message };
     }
-    return { error: "Erro ao criar devedor" };
+    return { error: "Erro ao criar cliente" };
   }
 }
