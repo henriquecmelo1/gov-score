@@ -6,8 +6,13 @@ import { NewSaleForm } from "@/components/sales/new-sale-form";
 import { Modal } from "@/components/ui/modal";
 import { Toast } from "@/components/ui/toast";
 import { PlusIcon } from "lucide-react";
+import type { Debtor } from "@/lib/schemas/debtors";
 
-export function NewSaleButton() {
+type NewSaleButtonProps = {
+  debtors: Debtor[];
+};
+
+export function NewSaleButton({ debtors }: NewSaleButtonProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -33,6 +38,7 @@ export function NewSaleButton() {
       {isOpen && (
         <Modal title="Cadastrar Nova Venda" onClose={() => setIsOpen(false)}>
           <NewSaleForm
+            debtors={debtors}
             onSuccess={(mode) => {
               setIsOpen(false);
               showToast(mode === "create" ? "Venda cadastrada com sucesso." : "Venda atualizada com sucesso.");

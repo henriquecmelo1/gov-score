@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { getCompanyProfile, getCompanySales } from "@/lib/supabase/queries";
+import { getCompanyProfile, getCompanySales, searchDebtors } from "@/lib/supabase/queries";
 import { SalesSection } from "@/components/sales/sales-section";
 import { CompanyProfileCard } from "@/components/profile/company-profile-card";
 
@@ -10,9 +10,10 @@ export default async function ProfilePage() {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) redirect("/login");
 
-  const [{ data: profile }, { data: sales }] = await Promise.all([
+  const [{ data: profile }, { data: sales }, debtors] = await Promise.all([
     getCompanyProfile(supabase, user.id),
-    getCompanySales(supabase, user.id)
+    getCompanySales(supabase, user.id),
+    searchDebtors(supabase),
   ]);
 
   return (
@@ -24,7 +25,7 @@ export default async function ProfilePage() {
         telefone={profile?.telefone}
       />
 
-      <SalesSection initialSales={sales || []} />
+      <SalesSection initialSales={sales || []} debtors={debtors || []} />
     </div>
   );
 }

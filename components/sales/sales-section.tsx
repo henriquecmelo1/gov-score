@@ -10,12 +10,14 @@ import { Modal } from "@/components/ui/modal";
 import { ConfirmationModal } from "@/components/ui/confirmation-modal";
 import { Toast } from "@/components/ui/toast";
 import { PlusIcon } from "lucide-react";
+import type { Debtor } from "@/lib/schemas/debtors";
 
 type SalesSectionProps = {
   initialSales: Sale[];
+  debtors: Debtor[];
 };
 
-export function SalesSection({ initialSales }: SalesSectionProps) {
+export function SalesSection({ initialSales, debtors }: SalesSectionProps) {
   const router = useRouter();
   const [activeSale, setActiveSale] = useState<Sale | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -99,7 +101,9 @@ export function SalesSection({ initialSales }: SalesSectionProps) {
       {(isCreateOpen || activeSale) && (
         <Modal title={activeSale ? "Editar Venda" : "Cadastrar Nova Venda"} onClose={closeModal}>
           <NewSaleForm
+            key={activeSale?.id ?? "create-sale"}
             sale={activeSale}
+            debtors={debtors}
             onSuccess={(mode) => {
               closeModal();
               showToast(mode === "create" ? "Venda cadastrada com sucesso." : "Venda atualizada com sucesso.");

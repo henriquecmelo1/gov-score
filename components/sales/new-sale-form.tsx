@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileText, X } from "lucide-react";
+import { ChevronDown, FileText, X } from "lucide-react";
 import { saleSchema, type SaleInput } from "@/lib/schemas/inputs/sales";
 import { createSaleAction, updateSaleAction } from "@/actions/sales";
 import type { Sale } from "@/lib/schemas/sales";
 import { getFileNameFromUrl } from "@/lib/formatters";
+import type { Debtor } from "@/lib/schemas/debtors";
 
 type SaleFormProps = {
   onSuccess: (mode: "create" | "update") => void;
   sale?: Sale | null;
+  debtors: Debtor[];
 };
 
 function formatCentsToBRL(raw: string): string {
@@ -48,9 +50,30 @@ function getDefaultValues(sale?: Sale | null): SaleInput {
   };
 }
 
-export function NewSaleForm({ onSuccess, sale }: SaleFormProps) {
+function debtorOptionLabel(debtor: Debtor) {
+  const emailPart = debtor.email ? ` - ${debtor.email}` : "";
+  return `${debtor.name}${emailPart}`;
+}
+
+function debtorOptionSearchText(debtor: Debtor) {
+  return `${debtor.name} ${debtor.email ?? ""} ${debtor.city ?? ""} ${debtor.state ?? ""}`.trim();
+}
+
+function getDebtorLabelFromSale(sale: Sale | null | undefined, debtors: Debtor[]) {
+  if (!sale?.entidade_devedora) return "";
+
+  const saleDebtorId = String(sale.entidade_devedora);
+  const matchedDebtor = debtors.find((debtor) => String(debtor.id) === saleDebtorId);
+  if (matchedDebtor) return debtorOptionLabel(matchedDebtor);
+
+  return saleDebtorId;
+}
+
+export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [debtorSearch, setDebtorSearch] = useState(() => getDebtorLabelFromSale(sale, debtors));
+  const [isDebtorOpen, setIsDebtorOpen] = useState(false);
   const [nfInputKey, setNfInputKey] = useState(0);
   const [contratoInputKey, setContratoInputKey] = useState(0);
   const isEditing = Boolean(sale);
@@ -62,6 +85,13 @@ export function NewSaleForm({ onSuccess, sale }: SaleFormProps) {
   const contratoFile = useWatch({ control, name: "contrato_file" })?.[0];
   const nfDisplayName = nfFile?.name ?? (sale?.nf_url ? getFileNameFromUrl(sale.nf_url) : null);
   const contratoDisplayName = contratoFile?.name ?? (sale?.contrato_url ? getFileNameFromUrl(sale.contrato_url) : null);
+  const filteredDebtors = useMemo(() => {
+    const term = debtorSearch.trim().toLowerCase();
+
+    if (!term) return debtors;
+
+    return debtors.filter((debtor) => debtorOptionSearchText(debtor).toLowerCase().includes(term));
+  }, [debtors, debtorSearch]);
 
   useEffect(() => {
     reset(getDefaultValues(sale));
@@ -124,8 +154,67 @@ export function NewSaleForm({ onSuccess, sale }: SaleFormProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Entidade Devedora</label>
-          <input {...register("entidade_devedora")} className="w-full p-2 border rounded border-gray-400 bg-white text-gray-900" placeholder="Ex: Prefeitura de Recife" />
+          <label className="block text-sm font-medium text-gray-700">Devedor</label>
+          <div className="relative">
+            <input
+              type="text"
+              value={debtorSearch}
+              onFocus={() => setIsDebtorOpen(true)}
+              onBlur={() => {
+                setTimeout(() => setIsDebtorOpen(false), 120);
+              }}
+              onChange={(event) => {
+                const searchValue = event.target.value;
+                setDebtorSearch(searchValue);
+                setIsDebtorOpen(true);
+
+                const selectedDebtor = debtors.find((debtor) => debtorOptionLabel(debtor) === searchValue);
+                setValue("entidade_devedora", selectedDebtor ? String(selectedDebtor.id) : "", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+              }}
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 pr-10 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              placeholder="Digite para buscar devedor"
+              autoComplete="off"
+              role="combobox"
+              aria-expanded={isDebtorOpen}
+              aria-controls="debtors-options"
+            />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+
+            {isDebtorOpen && filteredDebtors.length > 0 && (
+              <div id="debtors-options" className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 shadow-lg">
+                {filteredDebtors.map((debtor) => {
+                  const label = debtorOptionLabel(debtor);
+
+                  return (
+                    <button
+                      key={debtor.id}
+                      type="button"
+                      onMouseDown={(event) => {
+                        event.preventDefault();
+                        setDebtorSearch(label);
+                        setValue("entidade_devedora", String(debtor.id), {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        });
+                        setIsDebtorOpen(false);
+                      }}
+                      className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left transition hover:bg-blue-50"
+                    >
+                      <span className="text-sm font-medium text-gray-900">{debtor.name}</span>
+                      <span className="text-xs text-gray-500">
+                        {debtor.email ?? "Sem e-mail"}
+                        {(debtor.city || debtor.state) ? ` • ${debtor.city ?? ""}${debtor.city && debtor.state ? "/" : ""}${debtor.state ?? ""}` : ""}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          <input type="hidden" {...register("entidade_devedora")} />
           {errors.entidade_devedora && <p className="text-red-500 text-xs">{errors.entidade_devedora.message}</p>}
         </div>
 

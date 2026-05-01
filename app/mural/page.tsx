@@ -3,6 +3,7 @@ import { SearchFilter } from "@/components/mural/search-filter";
 import { NewSaleButton } from "@/components/mural/new-sale-button";
 import { MuralList } from "@/components/mural/mural-list";
 import { createClient } from "@/lib/supabase/server";
+import { searchDebtors } from "@/lib/supabase/queries";
 
 export default async function MuralPage({
     searchParams,
@@ -12,7 +13,10 @@ export default async function MuralPage({
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     const resolvedSearchParams = (await searchParams) ?? {};
-    const sales = await getPublicSales(supabase, resolvedSearchParams.search);
+    const [sales, debtors] = await Promise.all([
+        getPublicSales(supabase, resolvedSearchParams.search),
+        user ? searchDebtors(supabase) : Promise.resolve([]),
+    ]);
 
     return (
         <main className="py-2">
@@ -24,7 +28,7 @@ export default async function MuralPage({
                         Consulte vendas e histórico de pagamentos de entidades públicas.
                     </p>
                     </div>
-                    {user ? <NewSaleButton /> : null}
+                    {user ? <NewSaleButton debtors={debtors} /> : null}
                 </div>
                 <div className="w-full">
                     <SearchFilter />
