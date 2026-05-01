@@ -26,7 +26,6 @@ export async function createDebtorAction(data: DebtorCreateInput) {
     return { success: true, debtor: inserted };
   } catch (err: unknown) {
     if (err && typeof err === "object" && "message" in err) {
-      // @ts-expect-error - narrowing for message
       return { error: (err as any).message };
     }
     return { error: "Erro ao criar cliente" };

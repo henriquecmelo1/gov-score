@@ -54,6 +54,65 @@ export async function getPendingSalesOver30Days(supabase: SupabaseClient): Promi
   return (data ?? []) as PendingSaleAlert[];
 }
 
+export type PendingSaleWithDebtorDetails = {
+  id: string;
+  numero_ordem: string;
+  valor_nf: string;
+  data_entrega: string;
+  contrato_url: string | null;
+  nf_url: string | null;
+  entidade_devedora: string;
+  debtor_email: string;
+  debtor_name: string;
+  company_name: string;
+};
+
+export async function getPendingSalesOver30DaysForDebtors(
+  supabase: SupabaseClient
+): Promise<PendingSaleWithDebtorDetails[]> {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const selectSalesWithDetails = `
+    id,
+    numero_ordem,
+    valor_nf,
+    data_entrega,
+    contrato_url,
+    nf_url,
+    entidade_devedora,
+    debtors ( email, name ),
+    profiles ( razao_social )
+  `;
+
+  const { data, error } = await supabase
+    .from("sales")
+    .select(selectSalesWithDetails)
+    .eq("status", "pendente")
+    .lt("data_entrega", thirtyDaysAgo.toISOString())
+    .order("data_entrega", { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  return (data ?? []).map((sale) => {
+    const debtors = Array.isArray(sale.debtors) ? sale.debtors[0] : sale.debtors;
+    const profiles = Array.isArray(sale.profiles) ? sale.profiles[0] : sale.profiles;
+
+    return {
+      id: sale.id,
+      numero_ordem: sale.numero_ordem,
+      valor_nf: sale.valor_nf,
+      data_entrega: sale.data_entrega,
+      contrato_url: sale.contrato_url,
+      nf_url: sale.nf_url,
+      entidade_devedora: sale.entidade_devedora,
+      debtor_email: debtors?.email ?? "",
+      debtor_name: debtors?.name ?? "Devedor",
+      company_name: profiles?.razao_social ?? "Empresa",
+    };
+  }) as PendingSaleWithDebtorDetails[];
+}
+
 export async function markSalesAsEmailSent(supabase: SupabaseClient, saleIds: string[]) {
   if (saleIds.length === 0) {
     return [];

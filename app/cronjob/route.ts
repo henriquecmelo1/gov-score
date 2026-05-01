@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getPendingSalesOver30Days, markSalesAsEmailSent } from "@/lib/supabase/queries";
+import { getPendingSalesOver30DaysForDebtors, markSalesAsEmailSent } from "@/lib/supabase/queries";
 import { notifyOverdueSales } from "@/actions/notify-overdue";
 
 export async function GET(request: NextRequest) {
@@ -13,53 +13,43 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = createAdminClient();
-  const overdueSales = await getPendingSalesOver30Days(supabase);
+  const overdueSales = await getPendingSalesOver30DaysForDebtors(supabase);
 
-  const ownerIds = [...new Set(overdueSales.map((sale) => sale.company_id))];
-  const owners = await Promise.all(
-    ownerIds.map(async (companyId) => {
-      const { data, error } = await supabase.auth.admin.getUserById(companyId);
+  if (overdueSales.length === 0) {
+    return Response.json({
+      checked_at: new Date().toISOString(),
+      total_overdue_pending_sales: 0,
+      overdue_sales: [],
+      email_notifications: { success: true, results: [] },
+      updated_sales_to_email_sent: [],
+    });
+  }
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return {
-        company_id: companyId,
-        email: data.user?.email ?? null,
-      };
-    })
-  );
-
-  const overdueSalesWithEmails = overdueSales.map((sale) => ({
-    id: sale.id,
-    entidade_devedora: sale.entidade_devedora,
-    company_id: sale.company_id,
-    owner_email: owners.find((owner) => owner.company_id === sale.company_id)?.email ?? null,
-  }));
-
-  // Send email notifications
-  const emailNotificationResult = await notifyOverdueSales(overdueSalesWithEmails);
+  // Send email notifications to debtors
+  const emailNotificationResult = await notifyOverdueSales(supabase, overdueSales);
 
   let updatedSales: Array<{ id: string; status: string }> = [];
 
   if (emailNotificationResult.success) {
     const notificationResults = emailNotificationResult.results ?? [];
-    const successfulEmails = new Set(
-      notificationResults.filter((result) => result.success).map((result) => result.email)
-    );
+    const successfulSaleIds = notificationResults
+      .filter((result) => result.success)
+      .flatMap((result) => {
+        // Get all sales for this email from the original overdueSales
+        return overdueSales
+          .filter((sale) => sale.debtor_email === result.email)
+          .map((sale) => sale.id);
+      });
 
-    const saleIdsWithSentEmail = overdueSalesWithEmails
-      .filter((sale) => sale.owner_email && successfulEmails.has(sale.owner_email))
-      .map((sale) => sale.id);
-
-    updatedSales = await markSalesAsEmailSent(supabase, saleIdsWithSentEmail);
+    if (successfulSaleIds.length > 0) {
+      updatedSales = await markSalesAsEmailSent(supabase, successfulSaleIds);
+    }
   }
 
   return Response.json({
     checked_at: new Date().toISOString(),
     total_overdue_pending_sales: overdueSales.length,
-    overdue_sales: overdueSalesWithEmails,
+    overdue_sales: overdueSales,
     email_notifications: emailNotificationResult,
     updated_sales_to_email_sent: updatedSales,
   });

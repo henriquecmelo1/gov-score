@@ -1,16 +1,12 @@
 "use server";
 
+import { SupabaseClient } from "@supabase/supabase-js";
 import { sendOverdueNotification } from "@/lib/email/send-overdue-notification";
+import type { PendingSaleWithDebtorDetails } from "@/lib/supabase/queries";
 
-interface OverdueSale {
-  id: string;
-  entidade_devedora: string;
-  owner_email: string | null;
-}
-
-export async function notifyOverdueSales(overdueSales: OverdueSale[]) {
+export async function notifyOverdueSales(supabase: SupabaseClient, overdueSales: PendingSaleWithDebtorDetails[]) {
   try {
-    const results = await sendOverdueNotification(overdueSales);
+    const results = await sendOverdueNotification(supabase, overdueSales);
     return {
       success: true,
       results,
