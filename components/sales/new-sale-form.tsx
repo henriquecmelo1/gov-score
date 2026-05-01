@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, FileText, X } from "lucide-react";
+import Link from "next/link";
 import { saleSchema, type SaleInput } from "@/lib/schemas/inputs/sales";
 import { createSaleAction, updateSaleAction } from "@/actions/sales";
 import type { Sale } from "@/lib/schemas/sales";
@@ -213,6 +214,14 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
                 })}
               </div>
             )}
+          </div>
+          <div className="mt-2">
+            <Link
+              href="/debtors"
+              className="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
+            >
+              Adicionar Entidade Devedora
+            </Link>
           </div>
           <input type="hidden" {...register("entidade_devedora")} />
           {errors.entidade_devedora && <p className="text-red-500 text-xs">{errors.entidade_devedora.message}</p>}
