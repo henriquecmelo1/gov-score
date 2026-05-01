@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Sale } from "@/lib/schemas/sales";
 import { MoreHorizontal } from "lucide-react";
 import { canMarkSaleAsPaid } from "@/lib/sales/status";
@@ -17,14 +18,20 @@ type SalesListProps = {
 
 export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesListProps) {
   const [openMenuSaleId, setOpenMenuSaleId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number; placement: "top" | "bottom" } | null>(null);
   const openMenuRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent | TouchEvent) => {
       if (!openMenuSaleId) return;
       const target = event.target as Node | null;
-      if (target && openMenuRef.current && !openMenuRef.current.contains(target)) {
+      const clickedInsideButton = target && openMenuRef.current && openMenuRef.current.contains(target);
+      const clickedInsideMenu = target && menuRef.current && menuRef.current.contains(target);
+
+      if (!clickedInsideButton && !clickedInsideMenu) {
         setOpenMenuSaleId(null);
+        setMenuPosition(null);
       }
     };
 
@@ -39,6 +46,26 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
 
   function closeMenu() {
     setOpenMenuSaleId(null);
+    setMenuPosition(null);
+  }
+
+  function openMenuForSale(saleId: string, triggerElement: HTMLButtonElement) {
+    const rect = triggerElement.getBoundingClientRect();
+    const estimatedMenuHeight = 128;
+    const estimatedMenuWidth = 160;
+    const gap = 8;
+    const openBelow = window.innerHeight - rect.bottom >= estimatedMenuHeight + gap;
+    const placement: "top" | "bottom" = openBelow ? "bottom" : "top";
+    const top = placement === "bottom" ? rect.bottom + gap : Math.max(gap, rect.top - estimatedMenuHeight - gap);
+    const left = Math.min(Math.max(gap, rect.left), window.innerWidth - estimatedMenuWidth - gap);
+
+    if (openMenuSaleId === saleId) {
+      closeMenu();
+      return;
+    }
+
+    setOpenMenuSaleId(saleId);
+    setMenuPosition({ top, left, placement });
   }
 
   if (sales.length === 0) {
@@ -71,7 +98,7 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
                 <div className="relative" ref={openMenuSaleId === sale.id ? openMenuRef : undefined}>
                   <button
                     type="button"
-                    onClick={() => setOpenMenuSaleId((current) => (current === sale.id ? null : sale.id))}
+                    onClick={(event) => openMenuForSale(sale.id, event.currentTarget)}
                     className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-gray-200 text-gray-600 transition hover:bg-gray-100"
                     aria-label="Abrir menu de ações"
                     aria-expanded={openMenuSaleId === sale.id}
@@ -80,8 +107,17 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
                     <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                   </button>
 
-                  {openMenuSaleId === sale.id && (
-                    <div className="absolute left-0 top-full mt-1 z-20 min-w-35 rounded-md border border-gray-200 bg-white p-1 shadow-lg" role="menu">
+                  {openMenuSaleId === sale.id && menuPosition && createPortal(
+                    <div
+                      ref={menuRef}
+                      className="z-50 min-w-35 rounded-md border border-gray-200 bg-white p-1 shadow-lg"
+                      role="menu"
+                      style={{
+                        position: "fixed",
+                        top: menuPosition.top,
+                        left: menuPosition.left,
+                      }}
+                    >
                       {canMarkSaleAsPaid(sale.status) && (
                         <button
                           type="button"
@@ -117,7 +153,8 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
                       >
                         Deletar
                       </button>
-                    </div>
+                    </div>,
+                    document.body
                   )}
                 </div>
               </td>
