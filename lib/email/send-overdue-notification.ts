@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { getFilesFromStorage } from "@/lib/supabase/storage";
+import { getFileFromStorage } from "@/lib/supabase/storage";
 
 interface OverdueSaleForDebtor {
   id: string;
@@ -20,70 +20,67 @@ export async function sendOverdueNotification(
 ) {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
-  const salesByDebtorEmail = new Map<string, OverdueSaleForDebtor[]>();
-
-  for (const sale of overdueSales) {
-    if (!sale.debtor_email) continue;
-
-    if (!salesByDebtorEmail.has(sale.debtor_email)) {
-      salesByDebtorEmail.set(sale.debtor_email, []);
-    }
-    salesByDebtorEmail.get(sale.debtor_email)!.push(sale);
-  }
-
-  const emailPromises = Array.from(salesByDebtorEmail.entries()).map(
-    async ([email, sales]) => {
+  // Send one email per sale (not grouped by debtor)
+  const emailPromises = overdueSales.map(async (sale) => {
       try {
-        // Get all attachments for this debtor's sales
-        const allAttachments: Array<{ filename: string; content: string; contentType?: string }> = [];
+      if (!sale.debtor_email) {
+        return {
+          saleId: sale.id,
+          email: "",
+          success: false,
+          error: "No debtor email provided",
+        };
+      }
 
-        for (const sale of sales) {
-          const filePaths = [sale.contrato_url, sale.nf_url];
-          const files = await getFilesFromStorage(supabase, "documents", filePaths);
+      // Get attachments for this specific sale
+      const attachments: Array<{ filename: string; content: Buffer }> = [];
 
-          for (const file of files) {
-            allAttachments.push({
-              filename: file.filename,
-              content: file.content.toString("base64"),
-              contentType: file.mimeType,
+      // Get contract file
+      if (sale.contrato_url) {
+        console.log(`Fetching contract from: ${sale.contrato_url}`);
+        const contratoFile = await getFileFromStorage(supabase, "documents", sale.contrato_url);
+        if (contratoFile) {
+          attachments.push({
+            filename: contratoFile.filename,
+            content: contratoFile.content,
             });
+          console.log(`Contract added: ${contratoFile.filename}`);
+        } else {
+          console.warn(`Failed to fetch contract: ${sale.contrato_url}`);
           }
         }
 
-        // Format sale details in email body
-        const salesContent = sales
-          .map(
-            (sale) => `
-        <div style="margin-bottom: 20px; padding: 15px; background-color: #f5f5f5; border-radius: 5px;">
-          <p><strong>Número da Venda:</strong> ${sale.numero_ordem}</p>
-          <p><strong>Cliente:</strong> ${sale.company_name}</p>
-          <p><strong>Valor da Nota Fiscal:</strong> R$ ${sale.valor_nf}</p>
-          <p><strong>Data de Entrega:</strong> ${new Date(sale.data_entrega).toLocaleDateString("pt-BR")}</p>
-        </div>
-          `
-          )
-          .join("");
+      // Get invoice file
+      if (sale.nf_url) {
+        console.log(`Fetching invoice from: ${sale.nf_url}`);
+        const nfFile = await getFileFromStorage(supabase, "documents", sale.nf_url);
+        if (nfFile) {
+          attachments.push({
+            filename: nfFile.filename,
+            content: nfFile.content,
+          });
+          console.log(`Invoice added: ${nfFile.filename}`);
+        } else {
+          console.warn(`Failed to fetch invoice: ${sale.nf_url}`);
+        }
+      }
+
+      const formattedDate = new Date(sale.data_entrega).toLocaleDateString("pt-BR");
 
         const htmlContent = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
             <h2 style="color: #333;">Aviso de Pagamento em Atraso</h2>
             
-            <p>Olá ${sales[0].debtor_name},</p>
+          <p>Olá ${sale.debtor_name},</p>
             
-            ${sales
-              .map(
-                (sale) => `
-              <p>
-                A venda de número <strong>${sale.numero_ordem}</strong> para o cliente <strong>${sale.company_name}</strong> 
-                de R$ <strong>${sale.valor_nf}</strong> está com o pagamento atrasado há mais de 30 dias. 
-                A data de entrega foi <strong>${new Date(sale.data_entrega).toLocaleDateString("pt-BR")}</strong> 
-                e o pagamento ainda não foi registrado.
-              </p>
-              
-              <p>Segue em anexo o contrato e a nota fiscal.</p>
-              `
-              )
-              .join("")}
+          <p>
+            A venda de número <strong>${sale.numero_ordem}</strong> para o cliente <strong>${sale.company_name}</strong> 
+            de R$ <strong>${sale.valor_nf}</strong> está com o pagamento atrasado há mais de 30 dias. 
+            A data de entrega foi <strong>${formattedDate}</strong> 
+            e o pagamento ainda não foi registrado.
+          </p>
+          
+          <p>Segue em anexo o contrato e a nota fiscal.</p>
             
             <p style="margin-top: 20px; font-style: italic; color: #666;">
               Caso o pagamento já tenha sido realizado, desconsidere esta mensagem.
@@ -97,25 +94,30 @@ export async function sendOverdueNotification(
           </div>
         `;
 
+        console.log(`Sending email for sale ${sale.id} to ${sale.debtor_email} with ${attachments.length} attachments`);
+
         const result = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
-          to: email,
-          subject: "Aviso: Venda com pagamento em atraso",
+          to: sale.debtor_email,
+          subject: `Aviso: Venda ${sale.numero_ordem} com pagamento em atraso`,
           html: htmlContent,
-          attachments: allAttachments.length > 0 ? allAttachments : undefined,
+          attachments: attachments.length > 0 ? attachments : undefined,
         });
 
+        console.log(`Email sent successfully for sale ${sale.id}:`, result);
+
         return {
-          email,
+          saleId: sale.id,
+          email: sale.debtor_email,
           success: true,
-          salesCount: sales.length,
-          attachmentsCount: allAttachments.length,
+          attachmentsCount: attachments.length,
           result,
         };
       } catch (error) {
-        console.error(`Failed to send email to ${email}:`, error);
+        console.error(`Failed to send email for sale ${sale.id}:`, error);
         return {
-          email,
+          saleId: sale.id,
+          email: sale.debtor_email,
           success: false,
           error: error instanceof Error ? error.message : "Unknown error",
         };

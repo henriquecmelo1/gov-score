@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  // Send email notifications to debtors
+  // Send email notifications to debtors (one email per sale)
   const emailNotificationResult = await notifyOverdueSales(supabase, overdueSales);
 
   let updatedSales: Array<{ id: string; status: string }> = [];
@@ -34,12 +34,7 @@ export async function GET(request: NextRequest) {
     const notificationResults = emailNotificationResult.results ?? [];
     const successfulSaleIds = notificationResults
       .filter((result) => result.success)
-      .flatMap((result) => {
-        // Get all sales for this email from the original overdueSales
-        return overdueSales
-          .filter((sale) => sale.debtor_email === result.email)
-          .map((sale) => sale.id);
-      });
+      .map((result) => result.saleId);
 
     if (successfulSaleIds.length > 0) {
       updatedSales = await markSalesAsEmailSent(supabase, successfulSaleIds);
