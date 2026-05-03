@@ -45,8 +45,8 @@ export default async function MuralPage({
             <div className="mb-8 space-y-4">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div className="w-full md:max-w-xl">
-                    <h1 className="text-3xl font-bold text-primary">Mural de Transparencia</h1>
-                    <p className="text-muted-foreground">
+                    <h1 className="text-3xl font-bold">Mural de Transparencia</h1>
+                    <p className="text-sm text-gray-600">
                         Consulte vendas e histórico de pagamentos de entidades públicas.
                     </p>
                     </div>
