@@ -1,4 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import type { Sale } from "@/lib/schemas/sales";
 import type { Debtor, DebtorCreateInput, DebtorUpdateInput } from "@/lib/schemas/debtors";
 
 export type PendingSaleAlert = {
@@ -16,27 +17,46 @@ export async function getCompanyProfile(supabase: SupabaseClient, userId: string
     .single();
 }
 
-export async function getCompanySales(supabase: SupabaseClient, companyId: string) {
-  return await supabase
-    .from("sales")
-    .select("*")
-    .eq("company_id", companyId)
-    .order("created_at", { ascending: false });
-}
+export type SaleWithJoins = Sale & {
+  debtors?: {
+    name?: string | null;
+  } | null;
+  profiles?: {
+    razao_social?: string | null;
+  } | null;
+};
 
-export async function getPublicSales(supabase: SupabaseClient) {
-  const selectAllSalesWithProfile = `
+export async function getCompanySales(supabase: SupabaseClient, companyId: string): Promise<SaleWithJoins[]> {
+  const selectAllSalesWithJoins = `
     *,
+    debtors ( name ),
     profiles ( razao_social )
   `;
 
   const { data, error } = await supabase
     .from("sales")
-    .select(selectAllSalesWithProfile)
+    .select(selectAllSalesWithJoins)
+    .eq("company_id", companyId)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data;
+  return (data ?? []) as SaleWithJoins[];
+}
+
+export async function getPublicSales(supabase: SupabaseClient): Promise<SaleWithJoins[]> {
+  const selectAllSalesWithJoins = `
+    *,
+    debtors ( name ),
+    profiles ( razao_social )
+  `;
+
+  const { data, error } = await supabase
+    .from("sales")
+    .select(selectAllSalesWithJoins)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as SaleWithJoins[];
 }
 
 export async function getPendingSalesOver30Days(supabase: SupabaseClient): Promise<PendingSaleAlert[]> {

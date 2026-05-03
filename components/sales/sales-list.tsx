@@ -2,18 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Sale } from "@/lib/schemas/sales";
 import { MoreHorizontal } from "lucide-react";
 import { canMarkSaleAsPaid } from "@/lib/sales/status";
 import { SaleStatusBadge } from "@/components/sales/sale-status-badge";
 import { SaleDocumentLink } from "@/components/sales/sale-document-link";
 import { formatCurrencyBRL, formatDateBR } from "@/lib/formatters";
+import type { SaleWithJoins } from "@/lib/supabase/queries";
 
 type SalesListProps = {
-  sales: Sale[];
-  onEdit: (sale: Sale) => void;
-  onDelete: (sale: Sale) => void;
-  onChangeStatus: (sale: Sale) => void;
+  sales: SaleWithJoins[];
+  onEdit: (sale: SaleWithJoins) => void;
+  onDelete: (sale: SaleWithJoins) => void;
+  onChangeStatus: (sale: SaleWithJoins) => void;
 };
 
 export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesListProps) {
@@ -66,6 +66,10 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
 
     setOpenMenuSaleId(saleId);
     setMenuPosition({ top, left, placement });
+  }
+
+  function getDebtorName(sale: SaleWithJoins) {
+    return sale.debtors?.name ?? sale.entidade_devedora;
   }
 
   if (sales.length === 0) {
@@ -158,7 +162,7 @@ export function SalesList({ sales, onEdit, onDelete, onChangeStatus }: SalesList
                   )}
                 </div>
               </td>
-              <td className="px-4 py-2 align-middle text-gray-700 text-center">{sale.entidade_devedora}</td>
+              <td className="px-4 py-2 align-middle text-gray-700 text-center">{getDebtorName(sale)}</td>
               <td className="px-4 py-2 align-middle text-gray-700 text-center">{formatCurrencyBRL(sale.valor_nf)}</td>
               <td className="px-4 py-2 align-middle text-gray-700 text-center">{formatDateBR(sale.data_entrega)}</td>
               <td className="px-4 py-2 align-middle text-center">

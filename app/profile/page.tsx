@@ -10,11 +10,13 @@ export default async function ProfilePage() {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) redirect("/login");
 
-  const [{ data: profile }, { data: sales }, debtors] = await Promise.all([
+  const [profileResult, sales, debtors] = await Promise.all([
     getCompanyProfile(supabase, user.id),
     getCompanySales(supabase, user.id),
     searchDebtors(supabase),
   ]);
+
+  const { data: profile } = profileResult;
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">

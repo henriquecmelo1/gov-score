@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Sale } from "@/lib/schemas/sales";
 import { SalesList } from "./sales-list";
 import { NewSaleForm } from "./new-sale-form";
 import { deleteSaleAction, updateSaleStatusAction } from "@/actions/sales";
@@ -11,18 +10,19 @@ import { ConfirmationModal } from "@/components/ui/confirmation-modal";
 import { Toast } from "@/components/ui/toast";
 import { PlusIcon } from "lucide-react";
 import type { Debtor } from "@/lib/schemas/debtors";
+import type { SaleWithJoins } from "@/lib/supabase/queries";
 
 type SalesSectionProps = {
-  initialSales: Sale[];
+  initialSales: SaleWithJoins[];
   debtors: Debtor[];
 };
 
 export function SalesSection({ initialSales, debtors }: SalesSectionProps) {
   const router = useRouter();
-  const [activeSale, setActiveSale] = useState<Sale | null>(null);
+  const [activeSale, setActiveSale] = useState<SaleWithJoins | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [saleToDelete, setSaleToDelete] = useState<Sale | null>(null);
-  const [saleToChangeStatus, setSaleToChangeStatus] = useState<Sale | null>(null);
+  const [saleToDelete, setSaleToDelete] = useState<SaleWithJoins | null>(null);
+  const [saleToChangeStatus, setSaleToChangeStatus] = useState<SaleWithJoins | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const closeModal = () => {
@@ -35,12 +35,12 @@ export function SalesSection({ initialSales, debtors }: SalesSectionProps) {
     setIsCreateOpen(true);
   };
 
-  const openEditModal = (sale: Sale) => {
+  const openEditModal = (sale: SaleWithJoins) => {
     setActiveSale(sale);
     setIsCreateOpen(false);
   };
 
-  const openStatusModal = (sale: Sale) => {
+  const openStatusModal = (sale: SaleWithJoins) => {
     setSaleToChangeStatus(sale);
   };
 
@@ -50,6 +50,8 @@ export function SalesSection({ initialSales, debtors }: SalesSectionProps) {
       setToastMessage(null);
     }, 2500);
   };
+
+  const getDebtorName = (sale: SaleWithJoins) => sale.debtors?.name ?? sale.entidade_devedora;
 
   const handleDelete = async () => {
     if (!saleToDelete) return;
@@ -116,7 +118,7 @@ export function SalesSection({ initialSales, debtors }: SalesSectionProps) {
       {saleToDelete && (
         <ConfirmationModal
           title="Confirmar exclusão"
-          description={`Tem certeza que deseja deletar a venda de ${saleToDelete.entidade_devedora}?`}
+          description={`Tem certeza que deseja deletar a venda de ${getDebtorName(saleToDelete)}?`}
           warningText="Esta ação não pode ser desfeita."
           confirmLabel="Deletar"
           confirmClassName="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
@@ -128,7 +130,7 @@ export function SalesSection({ initialSales, debtors }: SalesSectionProps) {
       {saleToChangeStatus && (
         <ConfirmationModal
           title="Confirmar mudança de status"
-          description={`Você deseja marcar como pago a venda de ${saleToChangeStatus.entidade_devedora}?`}
+          description={`Você deseja marcar como pago a venda de ${getDebtorName(saleToChangeStatus)}?`}
           warningText="Esta ação não pode ser desfeita."
           confirmLabel="Confirmar e marcar como pago"
           confirmClassName="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
