@@ -20,7 +20,7 @@ export default async function DebtorsPage({ searchParams }: { searchParams?: Pro
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:items-start">
         <div className="md:col-span-1">
           {user ? (
             <>
@@ -34,15 +34,20 @@ export default async function DebtorsPage({ searchParams }: { searchParams?: Pro
           )}
         </div>
 
-        <div className="md:col-span-2">
-          <div className="mb-4 flex items-center gap-2">
-            <form method="get" className="w-full">
-              <div className="flex gap-2">
-                <input name="q" defaultValue={q} placeholder="Buscar por nome" className="w-full p-2 border rounded" />
-                <button type="submit" className="bg-blue-600 text-white px-4 rounded">Buscar</button>
-              </div>
-            </form>
-          </div>
+        <div className="md:col-span-2 md:pt-10">
+          <form method="get" className="mb-4 flex items-end gap-2">
+              <input
+                id="q"
+                name="q"
+                defaultValue={q}
+                placeholder="Buscar por nome"
+                className="w-full rounded border p-2"
+              />
+            <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white">
+              Buscar
+            </button>
+          </form>
+
           <DebtorList debtors={(debtors ?? []) as Debtor[]} />
         </div>
       </div>
