@@ -17,22 +17,19 @@ export default async function MuralPage({
     const { data: { user } } = await supabase.auth.getUser();
     const resolvedSearchParams = (await searchParams) ?? {};
     const term = normalizeText(resolvedSearchParams.search);
-    const [sales, allDebtors, matchedDebtors] = await Promise.all([
+    const [sales, allDebtors] = await Promise.all([
         getPublicSales(supabase),
         searchDebtors(supabase),
-        term ? searchDebtors(supabase, term) : Promise.resolve([]),
     ]);
 
     const debtorNameById = new Map(allDebtors.map((debtor) => [String(debtor.id), debtor.name]));
-    const matchedDebtorIds = new Set(matchedDebtors.map((debtor) => String(debtor.id)));
 
     const filteredSales = term
         ? sales.filter((sale) => {
             const companyNameMatches = normalizeText(sale.profiles?.razao_social).includes(term);
-            const debtorIdMatches = normalizeText(sale.entidade_devedora).includes(term);
-            const debtorNameMatches = matchedDebtorIds.has(String(sale.entidade_devedora));
+            const debtorNameMatches = normalizeText(debtorNameById.get(String(sale.entidade_devedora))).includes(term);
 
-            return companyNameMatches || debtorIdMatches || debtorNameMatches;
+            return companyNameMatches || debtorNameMatches;
         })
         : sales;
 
