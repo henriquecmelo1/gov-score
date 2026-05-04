@@ -160,24 +160,24 @@ export async function getDebtorById(supabase: SupabaseClient, debtorId: string) 
   return (data as Debtor | null) ?? null;
 }
 
-export async function searchDebtors(supabase: SupabaseClient, term?: string) {
+export async function searchDebtors(supabase: SupabaseClient, term?: string, state?: string, city?: string) {
   const q = term?.trim();
+  let query = supabase.from("debtors").select("*");
 
-  if (!q) {
-    const { data, error } = await supabase
-      .from("debtors")
-      .select("*")
-      .order("name", { ascending: true });
-
-    if (error) throw new Error(error.message);
-    return data as Debtor[];
+  // Apply name filter
+  if (q) {
+    query = query.ilike("name", `%${q}%`);
   }
 
-  const { data, error } = await supabase
-    .from("debtors")
-    .select("*")
-    .ilike("name", `%${q}%`)
-    .order("name", { ascending: true });
+  if (state) {
+    query = query.eq("state", state);
+  }
+
+  if (city) {
+    query = query.eq("city", city);
+  }
+
+  const { data, error } = await query.order("name", { ascending: true });
 
   if (error) throw new Error(error.message);
   return data as Debtor[];

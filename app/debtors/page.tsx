@@ -2,14 +2,17 @@ import { createClient } from "@/lib/supabase/server";
 import { searchDebtors } from "@/lib/supabase/queries";
 import { DebtorForm } from "@/components/debtors/debtor-form";
 import { DebtorList } from "@/components/debtors/debtor-list";
+import { DebtorFilterForm } from "@/components/debtors/debtor-filter-form";
 import type { Debtor } from "@/lib/schemas/debtors";
 
-export default async function DebtorsPage({ searchParams }: { searchParams?: Promise<{ q?: string }> }) {
+export default async function DebtorsPage({ searchParams }: { searchParams?: Promise<{ q?: string; state?: string; city?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const sp = await searchParams;
   const q = sp?.q ?? undefined;
-  const debtors = await searchDebtors(supabase, q);
+  const state = sp?.state ?? undefined;
+  const city = sp?.city ?? undefined;
+  const debtors = await searchDebtors(supabase, q, state, city);
 
   return (
     <div className="space-y-6">
@@ -24,7 +27,7 @@ export default async function DebtorsPage({ searchParams }: { searchParams?: Pro
         <div className="md:col-span-1">
           {user ? (
             <>
-              <h2 className="font-medium mb-3">Criar Cliente</h2>
+              <h2 className="font-medium mb-3">Adicionar Novo Cliente</h2>
               <DebtorForm />
             </>
           ) : (
@@ -34,20 +37,11 @@ export default async function DebtorsPage({ searchParams }: { searchParams?: Pro
           )}
         </div>
 
-        <div className="md:col-span-2 md:pt-10">
-          <form method="get" className="mb-4 flex items-end gap-2">
-              <input
-                id="q"
-                name="q"
-                defaultValue={q}
-                placeholder="Buscar por nome"
-                className="w-full rounded border p-2"
-              />
-            <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white">
-              Buscar
-            </button>
-          </form>
+        <div className="md:col-span-2">
+          <h2 className="font-medium mb-3">Filtros</h2>
+          <DebtorFilterForm initialQuery={q} initialState={state} initialCity={city} />
 
+          <h3 className="font-medium mb-3">Clientes Cadastrados</h3>
           <DebtorList debtors={(debtors ?? []) as Debtor[]} />
         </div>
       </div>
