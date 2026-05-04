@@ -18,7 +18,7 @@ export function DebtorList({ debtors }: { debtors: DebtorRow[] }) {
   return (
     <div className="space-y-2">
       {debtors.map((d) => (
-        <div key={d.id} className="rounded border p-3 bg-white flex items-center justify-between">
+        <div key={d.id} className="rounded border border-gray-300 p-3 bg-white flex items-center justify-between">
           <div>
             <div className="font-medium text-gray-800">{d.name}</div>
             <div className="text-xs text-gray-500">{d.email} {d.city ? `• ${d.city}${d.state ? `/${d.state}` : ''}` : ''}</div>
