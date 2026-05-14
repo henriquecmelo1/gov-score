@@ -37,7 +37,7 @@ export function NavbarMenu({ isAuthenticated }: NavbarMenuProps) {
 
         <Link href="/debtors" className={outlinedPrimaryButtonClass}>
           <Users className="h-4 w-4" aria-hidden="true" />
-          Clientes
+          Compradores
         </Link>
 
         {isAuthenticated ? (
@@ -72,7 +72,7 @@ export function NavbarMenu({ isAuthenticated }: NavbarMenuProps) {
 
             <Link href="/debtors" className={outlinedPrimaryButtonClass} onClick={closeMenu}>
               <Users className="h-4 w-4" aria-hidden="true" />
-              Clientes
+              Compradores
             </Link>
 
             {isAuthenticated ? (

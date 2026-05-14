@@ -15,7 +15,7 @@ export function DebtorList({ debtors }: { debtors: DebtorRow[] }) {
   if (!debtors || debtors.length === 0) {
     return (
       <EmptyState
-        description="Nenhum cliente encontrado."
+        description="Nenhum comprador encontrado."
         variant="default"
       />
     );

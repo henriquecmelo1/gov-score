@@ -107,7 +107,7 @@ export function SalesList({
               Ações
             </th>
             <th className="px-4 py-2 font-semibold text-gray-900 text-center">
-              Cliente
+              Comprador
             </th>
             <th className="px-4 py-2 font-semibold text-gray-900 text-center">
               Valor (R$)

@@ -111,7 +111,7 @@ export function DebtorForm({ onSuccess }: Props) {
       </div>
 
       <Button type="submit" variant="primary" size="md" isLoading={loading} className="w-full">
-        {loading ? "Criando..." : "Criar Cliente"}
+        {loading ? "Criando..." : "Criar Comprador"}
       </Button>
     </form>
   );

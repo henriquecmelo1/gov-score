@@ -28,6 +28,6 @@ export async function createDebtorAction(data: DebtorCreateInput) {
     if (err && typeof err === "object" && "message" in err) {
       return { error: (err as any).message };
     }
-    return { error: "Erro ao criar cliente" };
+    return { error: "Erro ao criar comprador" };
   }
 }

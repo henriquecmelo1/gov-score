@@ -18,7 +18,7 @@ export function DebtorSalesList({ sales }: DebtorSalesListProps) {
   if (!sales || sales.length === 0) {
     return (
       <EmptyState
-        description="Nenhuma venda registrada para este cliente."
+        description="Nenhuma venda registrada para este comprador."
         variant="bordered"
       />
     );

@@ -18,8 +18,8 @@ export default async function DebtorsPage({ searchParams }: { searchParams?: Pro
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Clientes</h1>
-          <p className="text-sm text-gray-600">Cadastre e pesquise os clientes.</p>
+          <h1 className="text-2xl font-semibold">Compradores</h1>
+          <p className="text-sm text-gray-600">Cadastre e pesquise os compradores.</p>
         </div>
       </div>
 
@@ -31,19 +31,19 @@ export default async function DebtorsPage({ searchParams }: { searchParams?: Pro
           </div>
 
           <div>
-            <h2 className="mb-3 font-medium">Adicionar Novo Cliente</h2>
+            <h2 className="mb-3 font-medium">Adicionar Novo Comprador</h2>
             {user ? (
               <DebtorForm />
             ) : (
               <div className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-600">
-                Faça login para cadastrar um novo cliente.
+                Faça login para cadastrar um novo comprador.
               </div>
             )}
           </div>
         </div>
 
         <div>
-          <h2 className="mb-3 font-medium">Clientes Cadastrados</h2>
+          <h2 className="mb-3 font-medium">Compradores Cadastrados</h2>
           <DebtorList debtors={(debtors ?? []) as Debtor[]} />
         </div>
       </div>

@@ -43,9 +43,8 @@ function debtorOptionLabel(debtor: Debtor) {
 }
 
 function debtorOptionSearchText(debtor: Debtor) {
-  return `${debtor.name} ${debtor.email ?? ""} ${debtor.city ?? ""} ${
-    debtor.state ?? ""
-  }`.trim();
+  return `${debtor.name} ${debtor.email ?? ""} ${debtor.city ?? ""} ${debtor.state ?? ""
+    }`.trim();
 }
 
 function getDebtorLabelFromSale(
@@ -174,7 +173,7 @@ export function NewSaleForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Cliente
+            Comprador
           </label>
           <div className="relative">
             <input
@@ -202,7 +201,7 @@ export function NewSaleForm({
                 );
               }}
               className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 pr-10 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              placeholder="Digite para buscar cliente"
+              placeholder="Digite para buscar comprador"
               autoComplete="off"
               role="combobox"
               aria-expanded={isDebtorOpen}
@@ -242,9 +241,8 @@ export function NewSaleForm({
                       <span className="text-xs text-gray-500">
                         {debtor.email ?? "Sem e-mail"}
                         {debtor.city || debtor.state
-                          ? ` • ${debtor.city ?? ""}${
-                              debtor.city && debtor.state ? "/" : ""
-                            }${debtor.state ?? ""}`
+                          ? ` • ${debtor.city ?? ""}${debtor.city && debtor.state ? "/" : ""
+                          }${debtor.state ?? ""}`
                           : ""}
                       </span>
                     </button>
@@ -258,7 +256,7 @@ export function NewSaleForm({
               href="/debtors"
               className="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
             >
-              Adicionar Cliente
+              Adicionar Comprador
             </Link>
           </div>
           <input
@@ -290,11 +288,10 @@ export function NewSaleForm({
                 onBlur={field.onBlur}
                 name={field.name}
                 ref={field.ref}
-                className={`w-full p-2 border rounded transition text-gray-900 bg-white ${
-                  errors.valor_nf
-                    ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
-                    : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                }`}
+                className={`w-full p-2 border rounded transition text-gray-900 bg-white ${errors.valor_nf
+                  ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
+                  : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                  }`}
                 placeholder="R$ 0,00"
               />
             )}
@@ -312,11 +309,10 @@ export function NewSaleForm({
           </label>
           <input
             {...register("numero_ordem")}
-            className={`w-full p-2 border rounded transition text-gray-900 bg-white ${
-              errors.numero_ordem
-                ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
-                : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            }`}
+            className={`w-full p-2 border rounded transition text-gray-900 bg-white ${errors.numero_ordem
+              ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
+              : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+              }`}
           />
           {errors.numero_ordem && (
             <p className="text-red-500 text-xs mt-1">
@@ -332,11 +328,10 @@ export function NewSaleForm({
           <input
             type="date"
             {...register("data_entrega")}
-            className={`w-full p-2 border rounded transition text-gray-900 bg-white ${
-              errors.data_entrega
-                ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
-                : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            }`}
+            className={`w-full p-2 border rounded transition text-gray-900 bg-white ${errors.data_entrega
+              ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
+              : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+              }`}
           />
           {errors.data_entrega && (
             <p className="text-red-500 text-xs mt-1">
@@ -352,11 +347,10 @@ export function NewSaleForm({
         </label>
         <textarea
           {...register("itens_quantidade")}
-          className={`w-full p-2 border rounded transition text-gray-900 bg-white ${
-            errors.itens_quantidade
-              ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
-              : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-          }`}
+          className={`w-full p-2 border rounded transition text-gray-900 bg-white ${errors.itens_quantidade
+            ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
+            : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+            }`}
           rows={3}
           placeholder="Descreva os produtos/serviços..."
         />

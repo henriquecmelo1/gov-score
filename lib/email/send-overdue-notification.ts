@@ -22,7 +22,7 @@ export async function sendOverdueNotification(
 
   // Send one email per sale (not grouped by debtor)
   const emailPromises = overdueSales.map(async (sale) => {
-      try {
+    try {
       if (!sale.debtor_email) {
         return {
           saleId: sale.id,
@@ -43,12 +43,12 @@ export async function sendOverdueNotification(
           attachments.push({
             filename: contratoFile.filename,
             content: contratoFile.content,
-            });
+          });
           console.log(`Contract added: ${contratoFile.filename}`);
         } else {
           console.warn(`Failed to fetch contract: ${sale.contrato_url}`);
-          }
         }
+      }
 
       // Get invoice file
       if (sale.nf_url) {
@@ -67,14 +67,14 @@ export async function sendOverdueNotification(
 
       const formattedDate = new Date(sale.data_entrega).toLocaleDateString("pt-BR");
 
-        const htmlContent = `
+      const htmlContent = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
             <h2 style="color: #333;">Aviso de Pagamento em Atraso</h2>
             
           <p>Olá ${sale.debtor_name},</p>
             
           <p>
-            A venda de número <strong>${sale.numero_ordem}</strong> para o cliente <strong>${sale.company_name}</strong> 
+            A venda de número <strong>${sale.numero_ordem}</strong> para o comprador <strong>${sale.company_name}</strong> 
             de R$ <strong>${sale.valor_nf}</strong> está com o pagamento atrasado há mais de 30 dias. 
             A data de entrega foi <strong>${formattedDate}</strong> 
             e o pagamento ainda não foi registrado.
@@ -94,35 +94,35 @@ export async function sendOverdueNotification(
           </div>
         `;
 
-        console.log(`Sending email for sale ${sale.id} to ${sale.debtor_email} with ${attachments.length} attachments`);
+      console.log(`Sending email for sale ${sale.id} to ${sale.debtor_email} with ${attachments.length} attachments`);
 
-        const result = await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
-          to: sale.debtor_email,
-          subject: `Aviso: Venda ${sale.numero_ordem} com pagamento em atraso`,
-          html: htmlContent,
-          attachments: attachments.length > 0 ? attachments : undefined,
-        });
+      const result = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+        to: sale.debtor_email,
+        subject: `Aviso: Venda ${sale.numero_ordem} com pagamento em atraso`,
+        html: htmlContent,
+        attachments: attachments.length > 0 ? attachments : undefined,
+      });
 
-        console.log(`Email sent successfully for sale ${sale.id}:`, result);
+      console.log(`Email sent successfully for sale ${sale.id}:`, result);
 
-        return {
-          saleId: sale.id,
-          email: sale.debtor_email,
-          success: true,
-          attachmentsCount: attachments.length,
-          result,
-        };
-      } catch (error) {
-        console.error(`Failed to send email for sale ${sale.id}:`, error);
-        return {
-          saleId: sale.id,
-          email: sale.debtor_email,
-          success: false,
-          error: error instanceof Error ? error.message : "Unknown error",
-        };
-      }
+      return {
+        saleId: sale.id,
+        email: sale.debtor_email,
+        success: true,
+        attachmentsCount: attachments.length,
+        result,
+      };
+    } catch (error) {
+      console.error(`Failed to send email for sale ${sale.id}:`, error);
+      return {
+        saleId: sale.id,
+        email: sale.debtor_email,
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
+  }
   );
 
   const results = await Promise.all(emailPromises);

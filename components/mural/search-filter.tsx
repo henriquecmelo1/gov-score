@@ -26,7 +26,7 @@ export function SearchFilter() {
     <div className="relative w-full">
       <FormField
         type="text"
-        placeholder="Buscar vendedor ou cliente..."
+        placeholder="Buscar vendedor ou comprador..."
         defaultValue={searchParams.get("search") || ""}
         onChange={(e) => handleSearch(e.target.value)}
       />

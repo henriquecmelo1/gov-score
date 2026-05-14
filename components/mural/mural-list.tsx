@@ -33,7 +33,7 @@ export function MuralList({ sales }: MuralListProps) {
           <thead className="border-b border-secondary bg-primary-50">
             <tr>
               <th className="p-4 font-semibold">Vendedor</th>
-              <th className="p-4 font-semibold">Cliente</th>
+              <th className="p-4 font-semibold">Comprador</th>
               <th className="p-4 font-semibold">Valor</th>
               <th className="p-4 font-semibold">Entrega</th>
               <th className="p-4 font-semibold">Status</th>

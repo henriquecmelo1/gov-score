@@ -18,7 +18,7 @@ export default function Home() {
         </Link>
         <Link href="/debtors">
           <Button variant="secondary" size="md">
-            Ir para página de Clientes
+            Ir para página de Compradores
           </Button>
         </Link>
         <Link href="/profile">
