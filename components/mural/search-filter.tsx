@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
+import { FormField } from "@/components/ui/form-field";
 
 export function SearchFilter() {
   const router = useRouter();
@@ -23,15 +24,14 @@ export function SearchFilter() {
 
   return (
     <div className="relative w-full">
-      <input
+      <FormField
         type="text"
         placeholder="Buscar vendedor ou cliente..."
-        className="h-10 w-full rounded-md border px-3 text-base"
         defaultValue={searchParams.get("search") || ""}
         onChange={(e) => handleSearch(e.target.value)}
       />
       {isPending && (
-        <div className="absolute right-3 top-3 animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full" />
+        <div className="absolute right-3 top-8 animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full" />
       )}
     </div>
   );

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { NewSaleForm } from "@/components/sales/new-sale-form";
 import { Modal } from "@/components/ui/modal";
 import { Toast } from "@/components/ui/toast";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/lib/hooks/use-toast";
 import { PlusIcon } from "lucide-react";
 import type { Debtor } from "@/lib/schemas/debtors";
 
@@ -15,40 +17,39 @@ type NewSaleButtonProps = {
 export function NewSaleButton({ debtors }: NewSaleButtonProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { message: toastMessage, show: showToast, hide: hideToast } = useToast();
 
-  const showToast = (message: string) => {
-    setToastMessage(message);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 2500);
+  const handleSuccess = (mode: "create" | "update") => {
+    setIsOpen(false);
+    const message =
+      mode === "create"
+        ? "Venda cadastrada com sucesso."
+        : "Venda atualizada com sucesso.";
+    showToast(message);
+    router.refresh();
   };
 
   return (
     <>
-      <button
-        type="button"
+      <Button
         onClick={() => setIsOpen(true)}
-        className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
+        variant="primary"
+        size="md"
+        className="shrink-0"
       >
         <PlusIcon className="h-4 w-4" aria-hidden="true" />
         Nova venda
-      </button>
+      </Button>
 
       {isOpen && (
         <Modal title="Cadastrar Nova Venda" onClose={() => setIsOpen(false)}>
-          <NewSaleForm
-            debtors={debtors}
-            onSuccess={(mode) => {
-              setIsOpen(false);
-              showToast(mode === "create" ? "Venda cadastrada com sucesso." : "Venda atualizada com sucesso.");
-              router.refresh();
-            }}
-          />
+          <NewSaleForm debtors={debtors} onSuccess={handleSuccess} />
         </Modal>
       )}
 
-      {toastMessage ? <Toast message={toastMessage} /> : null}
+      {toastMessage && (
+        <Toast message={toastMessage} onClose={hideToast} />
+      )}
     </>
   );
 }

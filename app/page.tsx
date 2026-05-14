@@ -1,5 +1,6 @@
 
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -10,23 +11,20 @@ export default function Home() {
       </p>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <Link
-          href="/mural"
-          className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white! transition hover:bg-primary-700"
-        >
-          Ir para o Mural
+        <Link href="/mural">
+          <Button variant="primary" size="md">
+            Ir para o Mural
+          </Button>
         </Link>
-        <Link
-          href="/debtors"
-          className="rounded-md border border-primary px-5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary-50"
-        >
-          Ir para página de Clientes
+        <Link href="/debtors">
+          <Button variant="secondary" size="md">
+            Ir para página de Clientes
+          </Button>
         </Link>
-        <Link
-          href="/profile"
-          className="rounded-md border border-primary px-5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary-50"
-        >
-          Ir para o Perfil
+        <Link href="/profile">
+          <Button variant="secondary" size="md">
+            Ir para o Perfil
+          </Button>
         </Link>
       </div>
     </section>

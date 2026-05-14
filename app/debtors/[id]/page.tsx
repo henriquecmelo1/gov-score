@@ -3,6 +3,8 @@ import { getDebtorWithSales } from "@/lib/supabase/queries";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DebtorSalesList } from "@/components/debtors/debtor-sales-list";
+import { Button } from "@/components/ui/button";
+import type { Sale } from "@/lib/schemas/sales";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -15,6 +17,8 @@ export default async function DebtorProfile({ params }: Params) {
     notFound();
   }
 
+  const typedSales = (sales ?? []) as Sale[];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -22,14 +26,16 @@ export default async function DebtorProfile({ params }: Params) {
           <h1 className="text-2xl font-semibold">{debtor?.name ?? "Cliente"}</h1>
           <p className="text-sm text-gray-600">{debtor?.email}</p>
         </div>
-        <div>
-          <Link href="/debtors" className="text-blue-600">Voltar</Link>
-        </div>
+        <Link href="/debtors">
+          <Button variant="ghost" size="md">
+            Voltar
+          </Button>
+        </Link>
       </div>
 
       <div>
         <h2 className="text-lg font-medium mb-3">Vendas do cliente</h2>
-        <DebtorSalesList sales={(sales ?? []) as any} />
+        <DebtorSalesList sales={typedSales} />
       </div>
     </div>
   );

@@ -2,11 +2,8 @@ import { getPublicSales, searchDebtors } from "@/lib/supabase/queries";
 import { SearchFilter } from "@/components/mural/search-filter";
 import { NewSaleButton } from "@/components/mural/new-sale-button";
 import { MuralList } from "@/components/mural/mural-list";
+import { createDebtorNameMap, normalizeText } from "@/lib/sales/utils";
 import { createClient } from "@/lib/supabase/server";
-
-function normalizeText(value: string | null | undefined) {
-    return (value ?? "").trim().toLowerCase();
-}
 
 export default async function MuralPage({
     searchParams,
@@ -22,7 +19,7 @@ export default async function MuralPage({
         searchDebtors(supabase),
     ]);
 
-    const debtorNameById = new Map(allDebtors.map((debtor) => [String(debtor.id), debtor.name]));
+    const debtorNameById = createDebtorNameMap(allDebtors);
 
     const filteredSales = term
         ? sales.filter((sale) => {

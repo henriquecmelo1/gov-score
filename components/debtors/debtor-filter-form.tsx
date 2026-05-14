@@ -3,6 +3,9 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { states as ecStates, cities as ecCities } from "estados-cidades";
+import { FormField } from "@/components/ui/form-field";
+import { FormSelect } from "@/components/ui/form-select";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   initialQuery?: string;
@@ -35,7 +38,6 @@ export function DebtorFilterForm({ initialQuery, initialState, initialCity }: Pr
     try {
       const list = ecCities(selectedState) || [];
       setCities(Array.isArray(list) ? list : []);
-      // Reset city when state changes
       setSelectedCity("");
     } catch (_) {
       setCities([]);
@@ -69,57 +71,54 @@ export function DebtorFilterForm({ initialQuery, initialState, initialCity }: Pr
   }
 
   return (
-    <div className="mb-6 space-y-3 rounded-lg border border-gray-200 bg-white p-4">
+    <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-3">
       <div className="flex flex-col gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Buscar por nome</label>
-          <input
-            type="text"
-            placeholder="Buscar por nome"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded border p-2"
-          />
-        </div>
+        <FormField
+          type="text"
+          placeholder="Buscar por nome"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          label="Buscar por nome"
+        />
 
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-            <select
-              value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value)}
-              className="w-full rounded border p-2"
-            >
-              <option value="">Todos</option>
-              {states.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
+          <FormSelect
+            value={selectedState}
+            onChange={(e) => setSelectedState(e.target.value)}
+            label="Estado"
+          >
+            <option value="">Todos</option>
+            {states.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </FormSelect>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Cidade</label>
-            <select
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-              disabled={!selectedState}
-              className="w-full rounded border p-2 disabled:bg-gray-100 disabled:cursor-not-allowed"
-            >
-              <option value="">Todas</option>
-              {cities.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
+          <FormSelect
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            disabled={!selectedState}
+            label="Cidade"
+          >
+            <option value="">Todas</option>
+            {cities.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </FormSelect>
         </div>
 
-        <button
+        <Button
           onClick={handleFilterChange}
           disabled={isPending}
-          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400"
+          variant="primary"
+          size="md"
+          className="w-full"
         >
           {isPending ? "Filtrando..." : "Filtrar"}
-        </button>
+        </Button>
       </div>
     </div>
   );
