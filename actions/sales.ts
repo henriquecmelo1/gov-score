@@ -213,17 +213,17 @@ export async function updateSaleStatusAction(saleId: string) {
     return { error: "Venda não encontrada" };
   }
 
-  if (sale.status === "pago") {
+  if (sale.status === "paid") {
     return { error: "Esta venda já está paga." };
   }
 
-  if (sale.status !== "pendente" && sale.status !== "enviado email") {
-    return { error: "Somente vendas pendentes ou com aviso enviado podem ser marcadas como pagas." };
+  if (sale.status !== "under_20_days" && sale.status !== "over_20_days" && sale.status !== "over_30_days") {
+    return { error: "Somente vendas pendentes podem ser marcadas como pagas." };
   }
 
   const { error } = await supabase
     .from("sales")
-    .update({ status: "pago" })
+    .update({ status: "paid" })
     .eq("id", trimmedSaleId)
     .eq("company_id", userId);
 

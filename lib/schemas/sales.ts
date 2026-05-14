@@ -5,7 +5,7 @@ export const saleSchema = z.object({
   entidade_devedora: z.string(),
   valor_nf: z.number().positive("Valor deve ser positivo"),
   data_entrega: z.iso.datetime(),
-  status: z.enum(["pendente", "enviado email", "pago"]),
+  status: z.enum(["under_20_days", "over_20_days", "over_30_days", "paid"]),
   itens_quantidade: z.string(),
   numero_ordem: z.string().nullable().optional(),
   nf_url: z.string().nullable().optional(),
