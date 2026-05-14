@@ -7,7 +7,7 @@ export default function Home() {
     <section className="rounded-2xl border border-secondary bg-white p-10 text-center shadow-sm">
       <h1 className="text-4xl font-bold tracking-tight text-primary">Bem-vindo ao GovScore</h1>
       <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-        Plataforma para acompanhar vendas e pagamentos com transparencia, em uma interface limpa e objetiva.
+        O GovScore está em fase inicial e, por isso, oferece acesso gratuito para os primeiros usuários que desejam vender com mais segurança ao setor público.
       </p>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
