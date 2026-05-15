@@ -196,3 +196,69 @@ export function get30DayEmailTemplate(params: EmailTemplateParams): {
 
   return { subject, html };
 }
+
+export function getCompanyWarningNotificationTemplate(params: EmailTemplateParams): {
+  subject: string;
+  html: string;
+} {
+  const subject = `Notificação Enviada: Aviso de 20 Dias – NF nº ${params.numero_ordem}`;
+
+  const html = `
+    <div style="${baseStyle}">
+      <p>Olá <strong>${params.sender_name}</strong>,</p>
+
+      <p>
+        Informamos que o sistema <strong>GovScore</strong> enviou automaticamente um 
+        <strong>lembrete de pagamento</strong> para o devedor <strong>${params.debtor_name}</strong>.
+      </p>
+
+      <p>
+        Esta ação foi disparada pois a <strong>Nota Fiscal nº ${params.numero_ordem}</strong> 
+        (valor ${formatCurrency(params.valor_nf)}) completou 20 dias desde a entrega sem registro de pagamento.
+      </p>
+
+      <p>
+        O devedor recebeu os anexos da nota fiscal, contrato e certidões para agilizar o processo.
+        Continuaremos monitorando o prazo de 30 dias estabelecido pela Lei nº 14.133/2021.
+      </p>
+
+      <p>Atenciosamente,</p>
+      <p>Equipe GovScore</p>
+    </div>
+  `;
+
+  return { subject, html };
+}
+
+export function getCompanyOverdueNotificationTemplate(params: EmailTemplateParams): {
+  subject: string;
+  html: string;
+} {
+  const subject = `Notificação Enviada: Alerta de Vencimento (30+ Dias) – NF nº ${params.numero_ordem}`;
+
+  const html = `
+    <div style="${baseStyle}">
+      <p>Olá <strong>${params.sender_name}</strong>,</p>
+
+      <p>
+        <strong>Atenção:</strong> Informamos que o sistema <strong>GovScore</strong> enviou uma 
+        <strong>notificação de cobrança</strong> para o devedor <strong>${params.debtor_name}</strong>.
+      </p>
+
+      <p>
+        A <strong>Nota Fiscal nº ${params.numero_ordem}</strong> (valor ${formatCurrency(params.valor_nf)}) 
+        ultrapassou o prazo legal de 30 dias para pagamento.
+      </p>
+
+      <p>
+        Solicitamos ao devedor a regularização imediata ou uma previsão de pagamento atualizada.
+        Recomendamos que você também verifique o status internamente ou entre em contato com o órgão se necessário.
+      </p>
+
+      <p>Atenciosamente,</p>
+      <p>Equipe GovScore</p>
+    </div>
+  `;
+
+  return { subject, html };
+}

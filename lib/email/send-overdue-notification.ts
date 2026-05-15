@@ -10,7 +10,8 @@ type TemplateFn = (params: EmailTemplateParams) => { subject: string; html: stri
 export async function sendSalesEmailNotification(
   supabase: SupabaseClient,
   sales: PendingSaleWithDebtorDetails[],
-  templateFn: TemplateFn
+  templateFn: TemplateFn,
+  companyTemplateFn?: TemplateFn
 ) {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -82,7 +83,32 @@ export async function sendSalesEmailNotification(
         attachments: attachments.length > 0 ? attachments : undefined,
       });
 
-      console.log(`Email sent successfully for sale ${sale.id}:`, result);
+      console.log(`Email sent successfully for sale ${sale.id} to debtor:`, result);
+
+      if (companyTemplateFn && sender.email) {
+        try {
+          const { subject: cSubject, html: cHtml } = companyTemplateFn({
+            numero_ordem: sale.numero_ordem,
+            valor_nf: sale.valor_nf,
+            data_entrega: sale.data_entrega,
+            debtor_name: sale.debtor_name,
+            sender_name: sender.razao_social,
+            sender_company: sender.razao_social,
+            sender_phone: sender.telefone,
+            sender_email: sender.email,
+          });
+
+          await resend.emails.send({
+            from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+            to: sender.email,
+            subject: cSubject,
+            html: cHtml,
+          });
+          console.log(`Notification email sent to company (${sender.email}) for sale ${sale.id}`);
+        } catch (companyError) {
+          console.error(`Failed to notify company for sale ${sale.id}:`, companyError);
+        }
+      }
 
       return {
         saleId: sale.id,

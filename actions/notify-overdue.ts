@@ -2,7 +2,12 @@
 
 import { SupabaseClient } from "@supabase/supabase-js";
 import { sendSalesEmailNotification } from "@/lib/email/send-overdue-notification";
-import { get20DayEmailTemplate, get30DayEmailTemplate } from "@/lib/email/template_emails";
+import {
+  get20DayEmailTemplate,
+  get30DayEmailTemplate,
+  getCompanyWarningNotificationTemplate,
+  getCompanyOverdueNotificationTemplate,
+} from "@/lib/email/template_emails";
 import type { PendingSaleWithDebtorDetails } from "@/lib/supabase/queries";
 
 type NotifyResult = {
@@ -14,10 +19,16 @@ type NotifyResult = {
 async function notifySales(
   supabase: SupabaseClient,
   sales: PendingSaleWithDebtorDetails[],
-  templateFn: typeof get20DayEmailTemplate
+  templateFn: typeof get20DayEmailTemplate,
+  companyTemplateFn?: typeof getCompanyWarningNotificationTemplate
 ): Promise<NotifyResult> {
   try {
-    const results = await sendSalesEmailNotification(supabase, sales, templateFn);
+    const results = await sendSalesEmailNotification(
+      supabase,
+      sales,
+      templateFn,
+      companyTemplateFn
+    );
     return { success: true, results };
   } catch (error) {
     console.error("Error sending sale notifications:", error);
@@ -33,12 +44,22 @@ export async function notifyWarningSales(
   supabase: SupabaseClient,
   sales: PendingSaleWithDebtorDetails[]
 ): Promise<NotifyResult> {
-  return notifySales(supabase, sales, get20DayEmailTemplate);
+  return notifySales(
+    supabase,
+    sales,
+    get20DayEmailTemplate,
+    getCompanyWarningNotificationTemplate
+  );
 }
 
 export async function notifyOverdueSales(
   supabase: SupabaseClient,
   sales: PendingSaleWithDebtorDetails[]
 ): Promise<NotifyResult> {
-  return notifySales(supabase, sales, get30DayEmailTemplate);
+  return notifySales(
+    supabase,
+    sales,
+    get30DayEmailTemplate,
+    getCompanyOverdueNotificationTemplate
+  );
 }
