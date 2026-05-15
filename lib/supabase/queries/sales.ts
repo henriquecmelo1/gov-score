@@ -15,6 +15,7 @@ export type PendingSaleAlert = {
 
 export type PendingSaleWithDebtorDetails = {
   id: string;
+  company_id: string;
   numero_ordem: string;
   valor_nf: string;
   data_entrega: string;
@@ -34,6 +35,7 @@ const SELECT_SALES_WITH_JOINS = `
 
 const SELECT_SALES_WITH_DEBTOR_DETAILS = `
   id,
+  company_id,
   numero_ordem,
   valor_nf,
   data_entrega,
@@ -50,6 +52,7 @@ function mapSaleWithDebtorDetails(sale: any): PendingSaleWithDebtorDetails {
 
   return {
     id: sale.id,
+    company_id: sale.company_id,
     numero_ordem: sale.numero_ordem,
     valor_nf: sale.valor_nf,
     data_entrega: sale.data_entrega,
