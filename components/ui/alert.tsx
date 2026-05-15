@@ -13,24 +13,24 @@ type AlertProps = {
 
 const variantStyles: Record<AlertVariant, { bg: string; border: string; text: string }> = {
   error: {
-    bg: "bg-red-50",
-    border: "border-red-200",
-    text: "text-red-800",
+    bg: "bg-error-bg",
+    border: "border-error-border",
+    text: "text-error",
   },
   warning: {
-    bg: "bg-yellow-50",
-    border: "border-yellow-200",
-    text: "text-yellow-800",
+    bg: "bg-warning-bg",
+    border: "border-warning-border",
+    text: "text-warning",
   },
   success: {
-    bg: "bg-green-50",
-    border: "border-green-200",
-    text: "text-green-800",
+    bg: "bg-success-bg",
+    border: "border-success-border",
+    text: "text-success",
   },
   info: {
-    bg: "bg-blue-50",
-    border: "border-blue-200",
-    text: "text-blue-800",
+    bg: "bg-info-bg",
+    border: "border-info-border",
+    text: "text-info",
   },
 };
 
@@ -45,7 +45,7 @@ export function Alert({
 
   return (
     <div
-      className={`rounded-md border ${styles.bg} ${styles.border} px-3 py-2 text-sm ${styles.text}`}
+      className={`rounded-lg border ${styles.bg} ${styles.border} px-3 py-2 text-sm ${styles.text}`}
       role={role}
     >
       <div className="flex items-start justify-between gap-2">
@@ -56,7 +56,7 @@ export function Alert({
         {onClose && (
           <button
             onClick={onClose}
-            className="inline-flex shrink-0 rounded hover:bg-black/10 p-0.5 transition"
+            className="inline-flex shrink-0 rounded hover:bg-white/10 p-0.5 transition"
             aria-label="Fechar alerta"
           >
             <X className="h-4 w-4" />

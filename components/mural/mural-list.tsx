@@ -27,25 +27,25 @@ export function MuralList({ sales }: MuralListProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-secondary bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-lg">
       <div className="overflow-x-auto">
         <table className="min-w-190 w-full border-collapse text-center">
-          <thead className="border-b border-secondary bg-primary-50">
+          <thead className="border-b border-border bg-surface-elevated">
             <tr>
-              <th className="p-4 font-semibold">Vendedor</th>
-              <th className="p-4 font-semibold">Comprador</th>
-              <th className="p-4 font-semibold">Valor</th>
-              <th className="p-4 font-semibold">Entrega</th>
-              <th className="p-4 font-semibold">Status</th>
+              <th className="p-4 font-semibold text-foreground">Vendedor</th>
+              <th className="p-4 font-semibold text-foreground">Comprador</th>
+              <th className="p-4 font-semibold text-foreground">Valor</th>
+              <th className="p-4 font-semibold text-foreground">Entrega</th>
+              <th className="p-4 font-semibold text-foreground">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y divide-border">
             {sales.map((sale) => (
-              <tr key={sale.id} className="transition-colors hover:bg-primary-50">
-                <td className="p-4 font-medium">{sale.profiles?.razao_social ?? "-"}</td>
-                <td className="p-4">{sale.debtors?.name ?? sale.entidade_devedora}</td>
-                <td className="p-4">{formatCurrencyBRL(sale.valor_nf)}</td>
-                <td className="p-4">{formatDateBR(sale.data_entrega)}</td>
+              <tr key={sale.id} className="transition-colors hover:bg-surface-elevated/50">
+                <td className="p-4 font-medium text-foreground">{sale.profiles?.razao_social ?? "-"}</td>
+                <td className="p-4 text-foreground-muted">{sale.debtors?.name ?? sale.entidade_devedora}</td>
+                <td className="p-4 text-foreground-muted">{formatCurrencyBRL(sale.valor_nf)}</td>
+                <td className="p-4 text-foreground-muted">{formatDateBR(sale.data_entrega)}</td>
                 <td className="p-4 text-center align-middle">
                   <SaleStatusBadge status={sale.status} />
                 </td>

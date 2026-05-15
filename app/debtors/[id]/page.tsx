@@ -24,7 +24,7 @@ export default async function DebtorProfile({ params }: Params) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{debtor?.name ?? "Comprador"}</h1>
-          <p className="text-sm text-gray-600">{debtor?.email}</p>
+          <p className="text-sm text-foreground-muted">{debtor?.email}</p>
         </div>
         <Link href="/debtors">
           <Button variant="ghost" size="md">

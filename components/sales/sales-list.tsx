@@ -99,39 +99,39 @@ export function SalesList({
   }
 
   return (
-    <div className="w-full overflow-x-auto rounded-lg border border-gray-200">
-      <table className="w-full bg-white border-collapse">
-        <thead className="bg-gray-50 border-b border-gray-200">
+    <div className="w-full overflow-x-auto rounded-xl border border-border">
+      <table className="w-full bg-surface border-collapse">
+        <thead className="bg-surface-elevated border-b border-border">
           <tr>
-            <th className="px-4 py-2 font-semibold text-gray-900 w-0 text-center">
+            <th className="px-4 py-2 font-semibold text-foreground w-0 text-center">
               Ações
             </th>
-            <th className="px-4 py-2 font-semibold text-gray-900 text-center">
+            <th className="px-4 py-2 font-semibold text-foreground text-center">
               Comprador
             </th>
-            <th className="px-4 py-2 font-semibold text-gray-900 text-center">
+            <th className="px-4 py-2 font-semibold text-foreground text-center">
               Valor (R$)
             </th>
-            <th className="px-4 py-2 font-semibold text-gray-900 text-center">
+            <th className="px-4 py-2 font-semibold text-foreground text-center">
               Data de Entrega
             </th>
-            <th className="px-4 py-2 font-semibold text-gray-900 text-center">
+            <th className="px-4 py-2 font-semibold text-foreground text-center">
               Status
             </th>
-            <th className="px-4 py-2 font-semibold text-gray-900 text-center">
+            <th className="px-4 py-2 font-semibold text-foreground text-center">
               Itens/Quantidade
             </th>
-            <th className="px-4 py-2 font-semibold text-gray-900 text-center">
+            <th className="px-4 py-2 font-semibold text-foreground text-center">
               Nota Fiscal
             </th>
-            <th className="px-4 py-2 font-semibold text-gray-900 text-center">
+            <th className="px-4 py-2 font-semibold text-foreground text-center">
               Contrato
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-border">
           {sales.map((sale) => (
-            <tr key={sale.id} className="hover:bg-gray-50 transition">
+            <tr key={sale.id} className="hover:bg-surface-elevated/50 transition">
               <td className="px-4 py-2 align-middle text-center">
                 <div
                   className="relative"
@@ -160,7 +160,7 @@ export function SalesList({
                     createPortal(
                       <div
                         ref={menuRef}
-                        className="z-50 min-w-35 rounded-md border border-gray-200 bg-white p-1 shadow-lg"
+                        className="z-50 min-w-35 rounded-lg border border-border bg-surface-elevated p-1 shadow-lg"
                         role="menu"
                         style={{
                           position: "fixed",
@@ -175,7 +175,7 @@ export function SalesList({
                               closeMenu();
                               onChangeStatus(sale);
                             }}
-                            className="block w-full rounded px-3 py-2 text-left text-sm text-green-700 transition hover:bg-green-50"
+                            className="block w-full rounded-md px-3 py-2 text-left text-sm text-success transition hover:bg-success/10"
                             role="menuitem"
                           >
                             Marcar como pago
@@ -187,7 +187,7 @@ export function SalesList({
                             closeMenu();
                             onEdit(sale);
                           }}
-                          className="block w-full rounded px-3 py-2 text-left text-sm text-blue-700 transition hover:bg-blue-50"
+                          className="block w-full rounded-md px-3 py-2 text-left text-sm text-primary transition hover:bg-primary-glow"
                           role="menuitem"
                         >
                           Editar
@@ -198,7 +198,7 @@ export function SalesList({
                             closeMenu();
                             onDelete(sale);
                           }}
-                          className="block w-full rounded px-3 py-2 text-left text-sm text-red-700 transition hover:bg-red-50"
+                          className="block w-full rounded-md px-3 py-2 text-left text-sm text-error transition hover:bg-error/10"
                           role="menuitem"
                         >
                           Deletar
@@ -208,19 +208,19 @@ export function SalesList({
                     )}
                 </div>
               </td>
-              <td className="px-4 py-2 align-middle text-gray-700 text-center">
+              <td className="px-4 py-2 align-middle text-foreground-muted text-center">
                 {getDebtorNameFromSale(sale)}
               </td>
-              <td className="px-4 py-2 align-middle text-gray-700 text-center">
+              <td className="px-4 py-2 align-middle text-foreground-muted text-center">
                 {formatCurrencyBRL(sale.valor_nf)}
               </td>
-              <td className="px-4 py-2 align-middle text-gray-700 text-center">
+              <td className="px-4 py-2 align-middle text-foreground-muted text-center">
                 {formatDateBR(sale.data_entrega)}
               </td>
               <td className="px-4 py-2 align-middle text-center">
                 <SaleStatusBadge status={sale.status} />
               </td>
-              <td className="px-4 py-2 align-middle text-gray-700 text-center max-w-xs truncate">
+              <td className="px-4 py-2 align-middle text-foreground-muted text-center max-w-xs truncate">
                 {sale.itens_quantidade}
               </td>
               <td className="px-4 py-2 align-middle text-center text-sm">

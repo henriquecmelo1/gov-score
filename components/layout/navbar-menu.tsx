@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { LayoutGrid, LogIn, Menu, X, UserPlus, UserRound, Users } from "lucide-react";
 
-const outlinedPrimaryButtonClass =
-  "inline-flex items-center gap-2 rounded-md border border-primary bg-white px-3 py-2 font-semibold text-primary transition hover:bg-primary-50";
+const navButtonClass =
+  "inline-flex items-center gap-2 rounded-lg border border-border bg-surface/60 px-3 py-2 font-semibold text-foreground-muted transition hover:border-primary/40 hover:text-primary hover:bg-primary-glow hover:shadow-[0_0_15px_-3px_var(--primary-glow)]";
 
 type NavbarMenuProps = {
   isAuthenticated: boolean;
@@ -20,7 +20,7 @@ export function NavbarMenu({ isAuthenticated }: NavbarMenuProps) {
     <>
       <button
         type="button"
-        className="inline-flex items-center justify-center rounded-md border border-primary bg-white p-2 text-primary transition hover:bg-primary-50 md:hidden"
+        className="inline-flex items-center justify-center rounded-lg border border-border bg-surface/60 p-2 text-foreground-muted transition hover:border-primary/40 hover:text-primary md:hidden"
         aria-label={open ? "Fechar menu" : "Abrir menu"}
         aria-expanded={open}
         aria-controls="mobile-navbar-menu"
@@ -30,28 +30,28 @@ export function NavbarMenu({ isAuthenticated }: NavbarMenuProps) {
       </button>
 
       <div className="hidden items-center gap-2 text-sm font-medium md:flex">
-        <Link href="/mural" className={outlinedPrimaryButtonClass}>
+        <Link href="/mural" className={navButtonClass}>
           <LayoutGrid className="h-4 w-4" aria-hidden="true" />
           Mural
         </Link>
 
-        <Link href="/debtors" className={outlinedPrimaryButtonClass}>
+        <Link href="/debtors" className={navButtonClass}>
           <Users className="h-4 w-4" aria-hidden="true" />
           Compradores
         </Link>
 
         {isAuthenticated ? (
-          <Link href="/profile" className={outlinedPrimaryButtonClass}>
+          <Link href="/profile" className={navButtonClass}>
             <UserRound className="h-4 w-4" aria-hidden="true" />
             Perfil
           </Link>
         ) : (
           <>
-            <Link href="/login" className={outlinedPrimaryButtonClass}>
+            <Link href="/login" className={navButtonClass}>
               <LogIn className="h-4 w-4" aria-hidden="true" />
               Entrar
             </Link>
-            <Link href="/register" className={outlinedPrimaryButtonClass}>
+            <Link href="/register" className={navButtonClass}>
               <UserPlus className="h-4 w-4" aria-hidden="true" />
               Criar conta
             </Link>
@@ -62,31 +62,31 @@ export function NavbarMenu({ isAuthenticated }: NavbarMenuProps) {
       {open ? (
         <div
           id="mobile-navbar-menu"
-          className="absolute left-0 right-0 top-full border-b border-secondary bg-white px-4 py-3 shadow-lg md:hidden"
+          className="absolute left-0 right-0 top-full border-b border-border-glow glass px-4 py-3 shadow-lg md:hidden"
         >
           <div className="mx-auto flex max-w-6xl flex-col gap-2">
-            <Link href="/mural" className={outlinedPrimaryButtonClass} onClick={closeMenu}>
+            <Link href="/mural" className={navButtonClass} onClick={closeMenu}>
               <LayoutGrid className="h-4 w-4" aria-hidden="true" />
               Mural
             </Link>
 
-            <Link href="/debtors" className={outlinedPrimaryButtonClass} onClick={closeMenu}>
+            <Link href="/debtors" className={navButtonClass} onClick={closeMenu}>
               <Users className="h-4 w-4" aria-hidden="true" />
               Compradores
             </Link>
 
             {isAuthenticated ? (
-              <Link href="/profile" className={outlinedPrimaryButtonClass} onClick={closeMenu}>
+              <Link href="/profile" className={navButtonClass} onClick={closeMenu}>
                 <UserRound className="h-4 w-4" aria-hidden="true" />
                 Perfil
               </Link>
             ) : (
               <>
-                <Link href="/login" className={outlinedPrimaryButtonClass} onClick={closeMenu}>
+                <Link href="/login" className={navButtonClass} onClick={closeMenu}>
                   <LogIn className="h-4 w-4" aria-hidden="true" />
                   Entrar
                 </Link>
-                <Link href="/register" className={outlinedPrimaryButtonClass} onClick={closeMenu}>
+                <Link href="/register" className={navButtonClass} onClick={closeMenu}>
                   <UserPlus className="h-4 w-4" aria-hidden="true" />
                   Criar conta
                 </Link>

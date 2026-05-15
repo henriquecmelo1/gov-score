@@ -31,7 +31,7 @@ export function SearchFilter() {
         onChange={(e) => handleSearch(e.target.value)}
       />
       {isPending && (
-        <div className="absolute right-3 top-8 animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full" />
+        <div className="absolute right-3 top-8 animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
       )}
     </div>
   );

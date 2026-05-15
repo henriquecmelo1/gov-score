@@ -73,7 +73,7 @@ export function SalesSection({ initialSales, debtors }: SalesSectionProps) {
   return (
     <section className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-900">Minhas Vendas</h2>
+        <h2 className="text-xl font-semibold text-foreground">Minhas Vendas</h2>
         <Button
           onClick={openCreateModal}
           variant="primary"
@@ -120,7 +120,7 @@ export function SalesSection({ initialSales, debtors }: SalesSectionProps) {
           description={`Tem certeza que deseja deletar a venda de ${getDebtorNameFromSale(saleToDelete)}?`}
           warningText="Esta ação não pode ser desfeita."
           confirmLabel="Deletar"
-          confirmClassName="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          confirmClassName="rounded-lg bg-error/20 border border-error/30 px-4 py-2 text-sm font-medium text-error hover:bg-error/30"
           onCancel={() => setSaleToDelete(null)}
           onConfirm={handleDelete}
         />
@@ -132,7 +132,7 @@ export function SalesSection({ initialSales, debtors }: SalesSectionProps) {
           description={`Você deseja marcar como pago a venda de ${getDebtorNameFromSale(saleToChangeStatus)}?`}
           warningText="Esta ação não pode ser desfeita."
           confirmLabel="Confirmar e marcar como pago"
-          confirmClassName="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          confirmClassName="rounded-lg bg-success/20 border border-success/30 px-4 py-2 text-sm font-medium text-success hover:bg-success/30"
           onCancel={() => setSaleToChangeStatus(null)}
           onConfirm={handleStatusUpdate}
         />

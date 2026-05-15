@@ -71,7 +71,7 @@ export function DebtorFilterForm({ initialQuery, initialState, initialCity }: Pr
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-3">
+    <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
       <div className="flex flex-col gap-4">
         <FormField
           type="text"

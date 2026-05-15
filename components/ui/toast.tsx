@@ -7,16 +7,16 @@ type ToastProps = {
 };
 
 const variantStyles = {
-  success: "border-green-200 bg-green-50 text-green-800",
-  error: "border-red-200 bg-red-50 text-red-800",
-  info: "border-blue-200 bg-blue-50 text-blue-800",
-  warning: "border-yellow-200 bg-yellow-50 text-yellow-800",
+  success: "border-success-border bg-success-bg text-success",
+  error: "border-error-border bg-error-bg text-error",
+  info: "border-info-border bg-info-bg text-info",
+  warning: "border-warning-border bg-warning-bg text-warning",
 };
 
 export function Toast({ message, onClose, variant = "success" }: ToastProps) {
   return (
     <div
-      className={`fixed bottom-4 right-4 z-60 rounded-md border px-4 py-3 text-sm font-medium shadow-lg ${variantStyles[variant]}`}
+      className={`fixed bottom-4 right-4 z-60 rounded-lg border px-4 py-3 text-sm font-medium shadow-lg backdrop-blur-sm ${variantStyles[variant]}`}
       role="status"
       aria-live="polite"
     >

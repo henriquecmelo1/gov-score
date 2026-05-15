@@ -19,7 +19,7 @@ export default async function DebtorsPage({ searchParams }: { searchParams?: Pro
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Compradores</h1>
-          <p className="text-sm text-gray-600">Cadastre e pesquise os compradores.</p>
+          <p className="text-sm text-foreground-muted">Cadastre e pesquise os compradores.</p>
         </div>
       </div>
 
@@ -35,7 +35,7 @@ export default async function DebtorsPage({ searchParams }: { searchParams?: Pro
             {user ? (
               <DebtorForm />
             ) : (
-              <div className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-600">
+              <div className="rounded-xl border border-border bg-surface p-4 text-sm text-foreground-muted">
                 Faça login para cadastrar um novo comprador.
               </div>
             )}

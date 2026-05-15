@@ -11,11 +11,11 @@ export function getSaleStatusLabel(status: SaleStatus): string {
 }
 
 export function getSaleStatusClasses(status: SaleStatus): string {
-  if (status === "paid") return "bg-emerald-100 text-emerald-800";
-  if (status === "under_20_days") return "bg-sky-100 text-sky-800";
-  if (status === "over_20_days") return "bg-amber-100 text-amber-800";
-  if (status === "over_30_days") return "bg-red-100 text-red-800";
-  return "bg-red-100 text-red-800";
+  if (status === "paid") return "bg-success/15 text-success border border-success/30";
+  if (status === "under_20_days") return "bg-info/15 text-info border border-info/30";
+  if (status === "over_20_days") return "bg-warning/15 text-warning border border-warning/30";
+  if (status === "over_30_days") return "bg-error/15 text-error border border-error/30";
+  return "bg-error/15 text-error border border-error/30";
 }
 
 export function canMarkSaleAsPaid(status: SaleStatus): boolean {

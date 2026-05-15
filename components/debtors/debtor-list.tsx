@@ -26,15 +26,15 @@ export function DebtorList({ debtors }: { debtors: DebtorRow[] }) {
       {debtors.map((d) => (
         <div
           key={d.id}
-          className="rounded border border-gray-300 p-3 bg-white flex items-center justify-between"
+          className="rounded-lg border border-border bg-surface p-3 flex items-center justify-between transition-colors hover:border-primary/30 hover:bg-surface-elevated/50"
         >
           <div>
-            <div className="font-medium text-gray-800">{d.name}</div>
-            <div className="text-xs text-gray-500">
+            <div className="font-medium text-foreground">{d.name}</div>
+            <div className="text-xs text-foreground-muted">
               {d.email} {d.city ? `• ${d.city}${d.state ? `/${d.state}` : ""}` : ""}
             </div>
           </div>
-          <Link href={`/debtors/${d.id}`} className="text-blue-600 hover:underline">
+          <Link href={`/debtors/${d.id}`} className="text-primary hover:text-primary-hover transition-colors hover:underline">
             Ver perfil
           </Link>
         </div>

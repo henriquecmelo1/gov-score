@@ -58,7 +58,7 @@ export function RegisterForm() {
         error={errors.password}
       />
 
-      <hr className="my-4" />
+      <hr className="my-4 border-border" />
 
       <FormField
         {...register("razao_social")}

@@ -65,7 +65,7 @@ export function DebtorForm({ onSuccess }: Props) {
   const onInvalid = () => setError("Revise os campos obrigatórios destacados em vermelho.");
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4 rounded-lg border border-gray-200 bg-white p-4">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4 rounded-xl border border-border bg-surface p-4">
       {error && <Alert variant="error">{error}</Alert>}
 
       <FormField

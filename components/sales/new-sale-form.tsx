@@ -149,20 +149,24 @@ export function NewSaleForm({
     );
   };
 
+  const inputBaseClass = `w-full p-2 border rounded-lg transition text-foreground bg-surface placeholder:text-foreground-dim focus:outline-none focus:ring-1`;
+  const inputNormalClass = `${inputBaseClass} border-border focus:border-primary/60 focus:ring-primary/30`;
+  const inputErrorClass = `${inputBaseClass} border-error/50 focus:border-error focus:ring-error/50`;
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit, onInvalid)}
-      className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-6"
+      className="space-y-4 rounded-xl border border-border bg-surface p-6"
     >
       {errorMessage && <Alert variant="error">{errorMessage}</Alert>}
 
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-foreground">
             {isEditing ? "Editar Venda" : "Cadastrar Nova Venda"}
           </h3>
           {isEditing && (
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="mt-1 text-sm text-foreground-muted">
               Você pode alterar os dados abaixo e substituir os arquivos se
               necessário.
             </p>
@@ -172,7 +176,7 @@ export function NewSaleForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
             Comprador
           </label>
           <div className="relative">
@@ -200,7 +204,7 @@ export function NewSaleForm({
                   }
                 );
               }}
-              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 pr-10 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 pr-10 text-foreground shadow-sm outline-none transition placeholder:text-foreground-dim focus:border-primary/60 focus:ring-1 focus:ring-primary/30"
               placeholder="Digite para buscar comprador"
               autoComplete="off"
               role="combobox"
@@ -208,14 +212,14 @@ export function NewSaleForm({
               aria-controls="debtors-options"
             />
             <ChevronDown
-              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-dim"
               aria-hidden="true"
             />
 
             {isDebtorOpen && filteredDebtors.length > 0 && (
               <div
                 id="debtors-options"
-                className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 shadow-lg"
+                className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-surface-elevated py-1 shadow-lg"
               >
                 {filteredDebtors.map((debtor) => {
                   const label = debtorOptionLabel(debtor);
@@ -233,12 +237,12 @@ export function NewSaleForm({
                         });
                         setIsDebtorOpen(false);
                       }}
-                      className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left transition hover:bg-blue-50"
+                      className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left transition hover:bg-primary-glow"
                     >
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-foreground">
                         {debtor.name}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-foreground-muted">
                         {debtor.email ?? "Sem e-mail"}
                         {debtor.city || debtor.state
                           ? ` • ${debtor.city ?? ""}${debtor.city && debtor.state ? "/" : ""
@@ -254,7 +258,7 @@ export function NewSaleForm({
           <div className="mt-2">
             <Link
               href="/debtors"
-              className="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
+              className="inline-flex items-center rounded-lg border border-primary/30 bg-primary-glow px-3 py-1.5 text-xs font-medium text-primary transition hover:border-primary/50 hover:bg-primary/20"
             >
               Adicionar Comprador
             </Link>
@@ -264,14 +268,14 @@ export function NewSaleForm({
             {...register("entidade_devedora")}
           />
           {errors.entidade_devedora && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="text-error text-xs mt-1">
               {errors.entidade_devedora.message}
             </p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
             Valor da NF (R$)
           </label>
           <Controller
@@ -288,53 +292,44 @@ export function NewSaleForm({
                 onBlur={field.onBlur}
                 name={field.name}
                 ref={field.ref}
-                className={`w-full p-2 border rounded transition text-gray-900 bg-white ${errors.valor_nf
-                  ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
-                  : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                  }`}
+                className={errors.valor_nf ? inputErrorClass : inputNormalClass}
                 placeholder="R$ 0,00"
               />
             )}
           />
           {errors.valor_nf && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="text-error text-xs mt-1">
               {errors.valor_nf.message}
             </p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
             Número da Ordem
           </label>
           <input
             {...register("numero_ordem")}
-            className={`w-full p-2 border rounded transition text-gray-900 bg-white ${errors.numero_ordem
-              ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
-              : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-              }`}
+            className={errors.numero_ordem ? inputErrorClass : inputNormalClass}
           />
           {errors.numero_ordem && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="text-error text-xs mt-1">
               {errors.numero_ordem.message}
             </p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
             Data de Entrega
           </label>
           <input
             type="date"
             {...register("data_entrega")}
-            className={`w-full p-2 border rounded transition text-gray-900 bg-white ${errors.data_entrega
-              ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
-              : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-              }`}
+            className={errors.data_entrega ? inputErrorClass : inputNormalClass}
           />
           {errors.data_entrega && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="text-error text-xs mt-1">
               {errors.data_entrega.message}
             </p>
           )}
@@ -342,20 +337,17 @@ export function NewSaleForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-foreground-muted mb-2">
           Itens e Quantidades
         </label>
         <textarea
           {...register("itens_quantidade")}
-          className={`w-full p-2 border rounded transition text-gray-900 bg-white ${errors.itens_quantidade
-            ? "border-red-400 focus:border-red-600 focus:ring-1 focus:ring-red-600"
-            : "border-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-            }`}
+          className={`${errors.itens_quantidade ? inputErrorClass : inputNormalClass} resize-y`}
           rows={3}
           placeholder="Descreva os produtos/serviços..."
         />
         {errors.itens_quantidade && (
-          <p className="text-red-500 text-xs mt-1">
+          <p className="text-error text-xs mt-1">
             {errors.itens_quantidade.message}
           </p>
         )}
@@ -363,24 +355,24 @@ export function NewSaleForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
             Nota Fiscal (PDF)
           </label>
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-blue-300 bg-blue-50 px-4 py-5 text-center transition hover:border-blue-500 hover:bg-blue-100">
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary-glow px-4 py-5 text-center transition hover:border-primary/50 hover:bg-primary/15">
             {nfDisplayName ? (
               <>
-                <div className="flex w-full max-w-xs items-center gap-3 rounded-md border border-blue-200 bg-white px-3 py-2 text-left shadow-sm">
-                  <div className="rounded-md bg-red-100 p-2">
+                <div className="flex w-full max-w-xs items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-left shadow-sm">
+                  <div className="rounded-lg bg-error/20 p-2">
                     <FileText
-                      className="h-5 w-5 text-red-600"
+                      className="h-5 w-5 text-error"
                       aria-hidden="true"
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-900">
+                    <p className="truncate text-sm font-medium text-foreground">
                       {nfDisplayName}
                     </p>
-                    <p className="text-xs text-gray-500">Documento PDF</p>
+                    <p className="text-xs text-foreground-dim">Documento PDF</p>
                   </div>
                   {nfFile && (
                     <button
@@ -391,7 +383,7 @@ export function NewSaleForm({
                         setValue("nf_file", undefined, { shouldDirty: true });
                         setNfInputKey((value) => value + 1);
                       }}
-                      className="ml-auto rounded p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+                      className="ml-auto rounded p-1 text-foreground-dim transition hover:bg-surface-elevated hover:text-foreground"
                       aria-label="Remover nota fiscal selecionada"
                       title="Remover arquivo"
                     >
@@ -399,20 +391,20 @@ export function NewSaleForm({
                     </button>
                   )}
                 </div>
-                <span className="text-xs text-blue-800/80">
+                <span className="text-xs text-primary/70">
                   Clique para substituir o arquivo
                 </span>
               </>
             ) : (
               <>
                 <FileText
-                  className="h-6 w-6 text-blue-700"
+                  className="h-6 w-6 text-primary"
                   aria-hidden="true"
                 />
-                <span className="text-sm font-medium text-blue-900">
+                <span className="text-sm font-medium text-primary">
                   Selecionar Nota Fiscal
                 </span>
-                <span className="text-xs text-blue-800/80">
+                <span className="text-xs text-primary/70">
                   Clique para anexar um PDF
                 </span>
               </>
@@ -428,24 +420,24 @@ export function NewSaleForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
             Contrato (PDF)
           </label>
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-blue-300 bg-blue-50 px-4 py-5 text-center transition hover:border-blue-500 hover:bg-blue-100">
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary-glow px-4 py-5 text-center transition hover:border-primary/50 hover:bg-primary/15">
             {contratoDisplayName ? (
               <>
-                <div className="flex w-full max-w-xs items-center gap-3 rounded-md border border-blue-200 bg-white px-3 py-2 text-left shadow-sm">
-                  <div className="rounded-md bg-red-100 p-2">
+                <div className="flex w-full max-w-xs items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-left shadow-sm">
+                  <div className="rounded-lg bg-error/20 p-2">
                     <FileText
-                      className="h-5 w-5 text-red-600"
+                      className="h-5 w-5 text-error"
                       aria-hidden="true"
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-900">
+                    <p className="truncate text-sm font-medium text-foreground">
                       {contratoDisplayName}
                     </p>
-                    <p className="text-xs text-gray-500">Documento PDF</p>
+                    <p className="text-xs text-foreground-dim">Documento PDF</p>
                   </div>
                   {contratoFile && (
                     <button
@@ -458,7 +450,7 @@ export function NewSaleForm({
                         });
                         setContratoInputKey((value) => value + 1);
                       }}
-                      className="ml-auto rounded p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+                      className="ml-auto rounded p-1 text-foreground-dim transition hover:bg-surface-elevated hover:text-foreground"
                       aria-label="Remover contrato selecionado"
                       title="Remover arquivo"
                     >
@@ -466,20 +458,20 @@ export function NewSaleForm({
                     </button>
                   )}
                 </div>
-                <span className="text-xs text-blue-800/80">
+                <span className="text-xs text-primary/70">
                   Clique para substituir o arquivo
                 </span>
               </>
             ) : (
               <>
                 <FileText
-                  className="h-6 w-6 text-blue-700"
+                  className="h-6 w-6 text-primary"
                   aria-hidden="true"
                 />
-                <span className="text-sm font-medium text-blue-900">
+                <span className="text-sm font-medium text-primary">
                   Selecionar Contrato
                 </span>
-                <span className="text-xs text-blue-800/80">
+                <span className="text-xs text-primary/70">
                   Clique para anexar um PDF
                 </span>
               </>

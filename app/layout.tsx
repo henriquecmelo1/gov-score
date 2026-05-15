@@ -28,7 +28,7 @@ export default function RootLayout({
       lang="pt-br"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-app text-foreground" suppressHydrationWarning>
+      <body className="min-h-full bg-background text-foreground bg-grid" suppressHydrationWarning>
         <Navbar />
 
         <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</div>

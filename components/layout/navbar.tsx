@@ -12,7 +12,7 @@ export async function Navbar() {
   const isAuthenticated = Boolean(user);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-secondary bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border-glow glass">
       <nav className="relative mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
         <Link href="/" className="text-xl font-semibold text-primary">
           <Image src="/govscore.png" alt="Logo ScoreGov" height={35} width={70} />
