@@ -58,20 +58,24 @@ export async function createSaleAction(formData: FormData) {
   if (!user) return { error: "Não autorizado" };
 
   try {
+    const insertData = {
+      company_id: user.id,
+      entidade_devedora: formData.get("entidade_devedora"),
+      valor_nf: parseFloat(formData.get("valor_nf") as string),
+      data_entrega: formData.get("data_entrega"),
+      numero_ordem: formData.get("numero_ordem"),
+      itens_quantidade: formData.get("itens_quantidade"),
+    };
+
     const { data: sale, error: saleError } = await supabase
       .from("sales")
-      .insert({
-        company_id: user.id,
-        entidade_devedora: formData.get("entidade_devedora"),
-        valor_nf: parseFloat(formData.get("valor_nf") as string),
-        data_entrega: formData.get("data_entrega"),
-        numero_ordem: formData.get("numero_ordem"),
-        itens_quantidade: formData.get("itens_quantidade"),
-      })
+      .insert(insertData)
       .select("id")
       .single();
 
-    if (saleError || !sale) throw new Error("Erro ao registrar dados da venda.");
+    if (saleError || !sale) {
+      throw new Error("Erro ao registrar dados da venda.");
+    }
 
     const saleId = sale.id;
 
