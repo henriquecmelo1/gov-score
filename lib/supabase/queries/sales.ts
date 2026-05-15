@@ -89,6 +89,19 @@ export async function getPublicSales(supabase: SupabaseClient): Promise<SaleWith
   return (data ?? []) as SaleWithJoins[];
 }
 
+export async function getSalesStillOver30Days(
+  supabase: SupabaseClient
+): Promise<PendingSaleWithDebtorDetails[]> {
+  const { data, error } = await supabase
+    .from("sales")
+    .select(SELECT_SALES_WITH_DEBTOR_DETAILS)
+    .eq("status", "over_30_days")
+    .order("data_entrega", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(mapSaleWithDebtorDetails);
+}
+
 export async function getPendingSalesOver30Days(
   supabase: SupabaseClient
 ): Promise<PendingSaleAlert[]> {
