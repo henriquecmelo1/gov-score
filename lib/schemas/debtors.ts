@@ -2,7 +2,9 @@ import * as z from "zod";
 
 export const debtorCreateSchema = z.object({
   name: z.string().trim().min(1, "Nome é obrigatório"),
-  email: z.string().email("E-mail inválido").trim().toLowerCase(),
+  email: z.string().email("E-mail inválido").trim().toLowerCase().optional().or(z.literal("")),
+  cnpj: z.string().trim().optional().nullable(),
+  phone: z.string().trim().optional().nullable(),
   city: z.string().trim().nullable().optional(),
   state: z.string().trim().nullable().optional(),
   // `user_id` is supplied server-side from the authenticated session
@@ -10,7 +12,9 @@ export const debtorCreateSchema = z.object({
 
 export const debtorUpdateSchema = z.object({
   name: z.string().trim().min(1).optional(),
-  email: z.string().email("E-mail inválido").trim().toLowerCase().optional(),
+  email: z.string().email("E-mail inválido").trim().toLowerCase().optional().or(z.literal("")),
+  cnpj: z.string().trim().optional().nullable(),
+  phone: z.string().trim().optional().nullable(),
   city: z.string().trim().nullable().optional(),
   state: z.string().trim().nullable().optional(),
 });
@@ -18,7 +22,9 @@ export const debtorUpdateSchema = z.object({
 export const debtorSchema = z.object({
   id: z.string(),
   name: z.string().trim(),
-  email: z.string().email().trim().toLowerCase(),
+  email: z.string().email().trim().toLowerCase().optional().or(z.literal("").transform(() => undefined)).nullable(),
+  cnpj: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
   city: z.string().nullable().optional(),
   state: z.string().nullable().optional(),
   user_id: z.string(),
