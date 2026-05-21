@@ -8,7 +8,7 @@ import { saleSchema, type SaleInput } from "@/lib/schemas/inputs/sales";
 import { createSaleAction, updateSaleAction } from "@/actions/sales";
 import { createDebtorAction } from "@/actions/debtors";
 import { fetchCnpjInfo } from "@/lib/services/cnpj";
-import { formatCentsToBRL, normalizeBRLToDecimal } from "@/lib/formatters/input-formatters";
+import { formatCentsToBRL, formatPhone, normalizeBRLToDecimal } from "@/lib/formatters/input-formatters";
 import { getFileNameFromUrl } from "@/lib/formatters";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,9 @@ function getDefaultValues(sale?: Sale | null): SaleInput {
     data_entrega: sale ? sale.data_entrega.slice(0, 10) : "",
     numero_ordem: sale?.numero_ordem ?? "",
     itens_quantidade: sale?.itens_quantidade ?? "",
+    numero_contrato: sale?.numero_contrato ?? "",
+    numero_nota_empenho: sale?.numero_nota_empenho ?? "",
+    alternative_email: sale?.alternative_email ?? "",
     nf_file: undefined,
     contrato_file: undefined,
   };
@@ -132,67 +135,100 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
 
   const handleNewDebtorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewDebtorData(prev => ({ ...prev, [name]: value }));
+    const finalValue = name === "phone" ? formatPhone(value) : value;
+    setNewDebtorData(prev => ({ ...prev, [name]: finalValue }));
   };
 
   const onSubmit = async (data: SaleInput) => {
+    console.log("Form onSubmit called with:", data);
     setLoading(true);
     setErrorMessage(null);
 
-    let finalDebtorId = data.entidade_devedora;
+    try {
+      let finalDebtorId = data.entidade_devedora;
 
-    if (isNewDebtor && data.entidade_devedora === "NEW") {
-      if (!newDebtorData.name) {
-        setErrorMessage("A Razão Social do comprador é obrigatória.");
+      if (isNewDebtor && data.entidade_devedora === "NEW") {
+        if (!newDebtorData.name) {
+          setErrorMessage("A Razão Social do comprador é obrigatória.");
+          setLoading(false);
+          return;
+        }
+
+        const debtorResult = await createDebtorAction(newDebtorData as DebtorCreateInput);
+        console.log("createDebtorAction result:", debtorResult);
+        if (!debtorResult.success || !debtorResult.debtor) {
+          setErrorMessage(debtorResult.error ?? "Erro ao cadastrar novo comprador.");
+          setLoading(false);
+          return;
+        }
+        finalDebtorId = String(debtorResult.debtor.id);
+      }
+
+      if (!finalDebtorId || finalDebtorId === "NEW") {
+        setErrorMessage("Por favor, selecione ou preencha os dados de um comprador válido.");
         setLoading(false);
         return;
       }
 
-      const debtorResult = await createDebtorAction(newDebtorData as DebtorCreateInput);
-      if (!debtorResult.success || !debtorResult.debtor) {
-        setErrorMessage(debtorResult.error ?? "Erro ao cadastrar novo comprador.");
-        setLoading(false);
-        return;
-      }
-      finalDebtorId = String(debtorResult.debtor.id);
-    }
+      const formData = new FormData();
+      if (sale) formData.append("sale_id", sale.id);
+      formData.append("entidade_devedora", finalDebtorId);
+      formData.append("valor_nf", normalizeBRLToDecimal(data.valor_nf));
+      formData.append("data_entrega", data.data_entrega);
+      formData.append("numero_ordem", data.numero_ordem);
+      formData.append("numero_contrato", data.numero_contrato ?? "");
+      formData.append("numero_nota_empenho", data.numero_nota_empenho ?? "");
+      formData.append("alternative_email", data.alternative_email ?? "");
+      formData.append("itens_quantidade", data.itens_quantidade);
 
-    if (!finalDebtorId || finalDebtorId === "NEW") {
-      setErrorMessage("Por favor, selecione ou preencha os dados de um comprador válido.");
+      const nfFile = data.nf_file?.[0];
+      const contratoFile = data.contrato_file?.[0];
+      if (nfFile) formData.append("nf_file", nfFile);
+      if (contratoFile) formData.append("contrato_file", contratoFile);
+
+      console.log("Submitting formData with sale:", sale?.id);
+      const result = sale
+        ? await updateSaleAction(formData)
+        : await createSaleAction(formData);
+      console.log("Action result:", result);
+
+      if (result.success) {
+        reset(getDefaultValues(null));
+        setCnpjSearch("");
+        setIsNewDebtor(false);
+        onSuccess(sale ? "update" : "create");
+      } else {
+        setErrorMessage(result.error ?? "Não foi possível salvar a venda.");
+      }
+    } catch (err: any) {
+      console.error("Uncaught submission error:", err);
+      setErrorMessage(err?.message ?? "Ocorreu um erro inesperado ao salvar a venda.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const formData = new FormData();
-    if (sale) formData.append("sale_id", sale.id);
-    formData.append("entidade_devedora", finalDebtorId);
-    formData.append("valor_nf", normalizeBRLToDecimal(data.valor_nf));
-    formData.append("data_entrega", data.data_entrega);
-    formData.append("numero_ordem", data.numero_ordem);
-    formData.append("itens_quantidade", data.itens_quantidade);
-
-    const nfFile = data.nf_file?.[0];
-    const contratoFile = data.contrato_file?.[0];
-    if (nfFile) formData.append("nf_file", nfFile);
-    if (contratoFile) formData.append("contrato_file", contratoFile);
-
-    const result = sale
-      ? await updateSaleAction(formData)
-      : await createSaleAction(formData);
-
-    if (result.success) {
-      reset(getDefaultValues(null));
-      setCnpjSearch("");
-      setIsNewDebtor(false);
-      onSuccess(sale ? "update" : "create");
-    } else {
-      setErrorMessage(result.error ?? "Não foi possível salvar a venda.");
-    }
-    setLoading(false);
   };
 
-  const onInvalid = () => {
-    setErrorMessage("Revise os campos obrigatórios destacados em vermelho.");
+  const onInvalid = (formErrors: any) => {
+    console.warn("Form validation failed with errors:", formErrors);
+    const errorList = Object.entries(formErrors)
+      .map(([key, err]: any) => {
+        const fieldName = 
+          key === "entidade_devedora" ? "Comprador" :
+          key === "itens_quantidade" ? "Itens e Quantidades" :
+          key === "valor_nf" ? "Valor da NF" :
+          key === "data_entrega" ? "Data de Entrega" :
+          key === "numero_ordem" ? "Número da Ordem" :
+          key === "numero_contrato" ? "Número do Contrato" :
+          key === "numero_nota_empenho" ? "Nº da Nota de Empenho" :
+          key === "alternative_email" ? "E-mail Alternativo" : key;
+        return `${fieldName}: ${err?.message || "campo inválido"}`;
+      });
+    
+    if (errorList.length > 0) {
+      setErrorMessage(`Por favor, corrija os seguintes erros: ${errorList.join(" | ")}`);
+    } else {
+      setErrorMessage("Revise os campos obrigatórios destacados em vermelho.");
+    }
   };
 
   const inputBaseClass = `w-full p-2 border rounded-lg transition text-foreground bg-surface placeholder:text-foreground-dim focus:outline-none focus:ring-1`;
@@ -284,6 +320,47 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
           />
           {errors.data_entrega && (
             <p className="text-error text-xs mt-1">{errors.data_entrega.message}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
+            Número do Contrato
+          </label>
+          <input
+            {...register("numero_contrato")}
+            className={errors.numero_contrato ? inputErrorClass : inputNormalClass}
+          />
+          {errors.numero_contrato && (
+            <p className="text-error text-xs mt-1">{errors.numero_contrato.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
+            Nº da Nota de Empenho
+          </label>
+          <input
+            {...register("numero_nota_empenho")}
+            className={errors.numero_nota_empenho ? inputErrorClass : inputNormalClass}
+          />
+          {errors.numero_nota_empenho && (
+            <p className="text-error text-xs mt-1">{errors.numero_nota_empenho.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground-muted mb-2">
+            E‑mail Alternativo (Opcional)
+          </label>
+          <input
+            {...register("alternative_email")}
+            className={errors.alternative_email ? inputErrorClass : inputNormalClass}
+          />
+          {errors.alternative_email && (
+            <p className="text-error text-xs mt-1">{errors.alternative_email.message}</p>
           )}
         </div>
       </div>

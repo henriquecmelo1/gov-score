@@ -177,6 +177,7 @@ function NewDebtorForm({ data, lockedFields, onChange }: NewDebtorFormProps) {
           onChange={onChange}
           className={`${inputNormalClass} ${lockedFields.phone ? lockedClass : ""}`}
           disabled={lockedFields.phone}
+          maxLength={15}
         />
       </div>
 

@@ -64,6 +64,9 @@ export async function createSaleAction(formData: FormData) {
       valor_nf: parseFloat(formData.get("valor_nf") as string),
       data_entrega: formData.get("data_entrega"),
       numero_ordem: formData.get("numero_ordem"),
+      numero_contrato: formData.get("numero_contrato"),
+      numero_nota_empenho: formData.get("numero_nota_empenho"),
+      alternative_email: formData.get("alternative_email"),
       itens_quantidade: formData.get("itens_quantidade"),
     };
 
@@ -138,6 +141,9 @@ export async function updateSaleAction(formData: FormData) {
       valor_nf: parseFloat(formData.get("valor_nf") as string),
       data_entrega: formData.get("data_entrega"),
       numero_ordem: formData.get("numero_ordem"),
+      numero_contrato: formData.get("numero_contrato"),
+      numero_nota_empenho: formData.get("numero_nota_empenho"),
+      alternative_email: formData.get("alternative_email"),
       itens_quantidade: formData.get("itens_quantidade"),
       nf_url: nfPath,
       contrato_url: contratoPath,

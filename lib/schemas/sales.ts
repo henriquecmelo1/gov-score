@@ -8,6 +8,9 @@ export const saleSchema = z.object({
   status: z.enum(["under_20_days", "over_20_days", "over_30_days", "paid"]),
   itens_quantidade: z.string(),
   numero_ordem: z.string().nullable().optional(),
+  numero_contrato: z.string().nullable().optional(),
+  numero_nota_empenho: z.string().nullable().optional(),
+  alternative_email: z.string().nullable().optional(),
   nf_url: z.string().nullable().optional(),
   contrato_url: z.string().nullable().optional(),
 });
