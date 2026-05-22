@@ -22,6 +22,7 @@ export type PendingSaleWithDebtorDetails = {
   contrato_url: string | null;
   nf_url: string | null;
   entidade_devedora: string;
+  alternative_email: string | null;
   debtor_email: string;
   debtor_name: string;
   company_name: string;
@@ -42,6 +43,7 @@ const SELECT_SALES_WITH_DEBTOR_DETAILS = `
   contrato_url,
   nf_url,
   entidade_devedora,
+  alternative_email,
   debtors ( email, name ),
   profiles ( razao_social )
 `;
@@ -49,6 +51,8 @@ const SELECT_SALES_WITH_DEBTOR_DETAILS = `
 function mapSaleWithDebtorDetails(sale: any): PendingSaleWithDebtorDetails {
   const debtors = Array.isArray(sale.debtors) ? sale.debtors[0] : sale.debtors;
   const profiles = Array.isArray(sale.profiles) ? sale.profiles[0] : sale.profiles;
+
+  const debtorEmail = sale.alternative_email?.trim() || debtors?.email || "";
 
   return {
     id: sale.id,
@@ -59,7 +63,8 @@ function mapSaleWithDebtorDetails(sale: any): PendingSaleWithDebtorDetails {
     contrato_url: sale.contrato_url,
     nf_url: sale.nf_url,
     entidade_devedora: sale.entidade_devedora,
-    debtor_email: debtors?.email ?? "",
+    alternative_email: sale.alternative_email ?? null,
+    debtor_email: debtorEmail,
     debtor_name: debtors?.name ?? "Devedor",
     company_name: profiles?.razao_social ?? "Empresa",
   };
