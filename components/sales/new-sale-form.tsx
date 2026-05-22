@@ -29,7 +29,7 @@ function getDefaultValues(sale?: Sale | null): SaleInput {
     : "";
 
   return {
-    entidade_devedora: sale?.entidade_devedora ?? "",
+    entidade_devedora: sale?.entidade_devedora != null ? String(sale.entidade_devedora) : "",
     valor_nf: initialValorNf,
     data_entrega: sale ? sale.data_entrega.slice(0, 10) : "",
     numero_ordem: sale?.numero_ordem ?? "",
@@ -66,6 +66,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
     reset,
     control,
     setValue,
+    setError,
     watch,
   } = useForm<SaleInput>({
     resolver: zodResolver(saleSchema),
@@ -143,6 +144,20 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
     console.log("Form onSubmit called with:", data);
     setLoading(true);
     setErrorMessage(null);
+
+    const debtorEmail = isNewDebtor
+      ? newDebtorData.email?.trim() ?? ""
+      : selectedDebtor?.email?.trim() ?? "";
+
+    if (!debtorEmail && !data.alternative_email?.trim()) {
+      setError("alternative_email", {
+        type: "manual",
+        message: "O e-mail do comprador ou o e-mail alternativo deve ser preenchido.",
+      });
+      setErrorMessage("O e-mail do comprador ou o e-mail alternativo deve ser preenchido.");
+      setLoading(false);
+      return;
+    }
 
     try {
       let finalDebtorId = data.entidade_devedora;
