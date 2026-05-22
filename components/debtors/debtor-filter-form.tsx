@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { states as ecStates, cities as ecCities } from "estados-cidades";
 import { FormField } from "@/components/ui/form-field";
 import { FormSelect } from "@/components/ui/form-select";
@@ -20,27 +20,21 @@ export function DebtorFilterForm({ initialQuery, initialState, initialCity }: Pr
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  const [states, setStates] = useState<string[]>(BRAZIL_STATES);
-  const [cities, setCities] = useState<string[]>([]);
   const [selectedState, setSelectedState] = useState(initialState || "");
   const [selectedCity, setSelectedCity] = useState(initialCity || "");
   const [searchTerm, setSearchTerm] = useState(initialQuery || "");
 
-  useEffect(() => {
-    setStates(Array.isArray(BRAZIL_STATES) ? BRAZIL_STATES : []);
-  }, []);
-
-  useEffect(() => {
-    if (!selectedState) {
-      setCities([]);
-      return;
-    }
+  const states = useMemo<string[]>(
+    () => (Array.isArray(BRAZIL_STATES) ? BRAZIL_STATES : []),
+    []
+  );
+  const cities = useMemo<string[]>(() => {
+    if (!selectedState) return [];
     try {
       const list = ecCities(selectedState) || [];
-      setCities(Array.isArray(list) ? list : []);
-      setSelectedCity("");
-    } catch (_) {
-      setCities([]);
+      return Array.isArray(list) ? list : [];
+    } catch {
+      return [];
     }
   }, [selectedState]);
 
@@ -60,7 +54,7 @@ export function DebtorFilterForm({ initialQuery, initialState, initialCity }: Pr
     }
 
     if (selectedCity) {
-      params.set("city", selectedCity);
+      params.set("city", selectedCity.toUpperCase());
     } else {
       params.delete("city");
     }
@@ -84,7 +78,10 @@ export function DebtorFilterForm({ initialQuery, initialState, initialCity }: Pr
         <div className="grid grid-cols-2 gap-4">
           <FormSelect
             value={selectedState}
-            onChange={(e) => setSelectedState(e.target.value)}
+            onChange={(e) => {
+              setSelectedState(e.target.value);
+              setSelectedCity("");
+            }}
             label="Estado"
           >
             <option value="">Todos</option>

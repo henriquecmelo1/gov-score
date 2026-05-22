@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { searchDebtors } from "@/lib/supabase/queries";
-import { DebtorForm } from "@/components/debtors/debtor-form";
 import { DebtorList } from "@/components/debtors/debtor-list";
 import { DebtorFilterForm } from "@/components/debtors/debtor-filter-form";
 import type { Debtor } from "@/lib/schemas/debtors";
@@ -28,17 +27,6 @@ export default async function DebtorsPage({ searchParams }: { searchParams?: Pro
           <div>
             <h2 className="mb-3 font-medium">Filtros</h2>
             <DebtorFilterForm initialQuery={q} initialState={state} initialCity={city} />
-          </div>
-
-          <div>
-            <h2 className="mb-3 font-medium">Adicionar Novo Comprador</h2>
-            {user ? (
-              <DebtorForm />
-            ) : (
-              <div className="rounded-xl border border-border bg-surface p-4 text-sm text-foreground-muted">
-                Faça login para cadastrar um novo comprador.
-              </div>
-            )}
           </div>
         </div>
 
