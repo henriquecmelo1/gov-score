@@ -2,7 +2,6 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { forgotPasswordSchema, ForgotPasswordInput } from "@/lib/schemas/auth";
-import { headers } from "next/headers";
 
 export async function forgotPasswordAction(data: ForgotPasswordInput) {
   const result = forgotPasswordSchema.safeParse(data);
@@ -11,21 +10,17 @@ export async function forgotPasswordAction(data: ForgotPasswordInput) {
   }
 
   const supabase = await createClient();
-  const headerList = await headers();
-  const origin = headerList.get("origin") || "";
 
-  console.log("sem erro1")
-  
-  const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-    redirectTo: `${origin}/auth/callback?next=/reset-password`,
+  const { error } = await supabase.auth.signInWithOtp({
+    email: data.email,
+    options: {
+      shouldCreateUser: false,
+    },
   });
-  console.log('aaaaaaaaaaa')
-  
+
   if (error) {
-    console.log("com erro")
-    return { error: error.message || "Erro ao enviar e-mail de redefinição." };
+    return { error: error.message || "Erro ao enviar código de verificação." };
   }
 
-  console.log("sem erro 2")
   return { success: true };
 }

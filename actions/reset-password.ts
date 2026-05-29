@@ -20,5 +20,5 @@ export async function resetPasswordAction(data: ResetPasswordInput) {
     return { error: error.message || "Erro ao atualizar a senha." };
   }
 
-  redirect("/profile?success=password-reset");
+  redirect("/login?success=Senha redefinida com sucesso. Faça login com sua nova senha.");
 }

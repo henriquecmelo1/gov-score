@@ -5,7 +5,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthCard
       title="Recuperar senha"
-      subtitle="Insira seu e-mail para receber um link de redefinição."
+      subtitle="Insira seu e-mail para receber um código de verificação."
       footerText="Lembrou sua senha?"
       footerLinkHref="/login"
       footerLinkText="Voltar para o Login"

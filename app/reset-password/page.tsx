@@ -9,7 +9,7 @@ export default async function ResetPasswordPage() {
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if (error || !user) {
-    redirect("/login?error=Para redefinir a senha, você precisa acessar o link de recuperação enviado ao seu e-mail.");
+    redirect("/forgot-password");
   }
 
   return (
