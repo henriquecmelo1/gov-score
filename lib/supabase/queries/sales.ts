@@ -26,6 +26,7 @@ export type PendingSaleWithDebtorDetails = {
   debtor_email: string;
   debtor_name: string;
   company_name: string;
+  email_sent: boolean;
 };
 
 const SELECT_SALES_WITH_JOINS = `
@@ -44,6 +45,7 @@ const SELECT_SALES_WITH_DEBTOR_DETAILS = `
   nf_url,
   entidade_devedora,
   alternative_email,
+  email_sent,
   debtors ( email, name ),
   profiles ( razao_social )
 `;
@@ -67,6 +69,7 @@ function mapSaleWithDebtorDetails(sale: any): PendingSaleWithDebtorDetails {
     debtor_email: debtorEmail,
     debtor_name: debtors?.name ?? "Devedor",
     company_name: profiles?.razao_social ?? "Empresa",
+    email_sent: sale.email_sent ?? false,
   };
 }
 
@@ -101,6 +104,7 @@ export async function getSalesStillOver30Days(
     .from("sales")
     .select(SELECT_SALES_WITH_DEBTOR_DETAILS)
     .eq("status", "over_30_days")
+    .eq("email_sent", true)
     .order("data_entrega", { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -133,8 +137,10 @@ export async function getSalesOver20Days(
   const { data, error } = await supabase
     .from("sales")
     .select(SELECT_SALES_WITH_DEBTOR_DETAILS)
-    .eq("status", "under_20_days")
-    .lt("data_entrega", twentyDaysAgo.toISOString())
+    .or(
+      `and(status.eq.under_20_days,data_entrega.lt.${twentyDaysAgo.toISOString()}),` +
+      `and(status.eq.over_20_days,email_sent.eq.false)`
+    )
     .order("data_entrega", { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -150,8 +156,10 @@ export async function getSalesOver30Days(
   const { data, error } = await supabase
     .from("sales")
     .select(SELECT_SALES_WITH_DEBTOR_DETAILS)
-    .eq("status", "over_20_days")
-    .lt("data_entrega", thirtyDaysAgo.toISOString())
+    .or(
+      `and(status.eq.over_20_days,data_entrega.lt.${thirtyDaysAgo.toISOString()}),` +
+      `and(status.eq.over_30_days,email_sent.eq.false)`
+    )
     .order("data_entrega", { ascending: true });
 
   if (error) throw new Error(error.message);

@@ -13,6 +13,7 @@ export const saleSchema = z.object({
   alternative_email: z.string().nullable().optional(),
   nf_url: z.string().nullable().optional(),
   contrato_url: z.string().nullable().optional(),
+  email_sent: z.boolean().optional(),
 });
 
 export type Sale = z.infer<typeof saleSchema>;

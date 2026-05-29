@@ -3,6 +3,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
+type SaleStatus = "under_20_days" | "over_20_days" | "over_30_days";
+
+function computeStatusFromDate(dataEntrega: string): SaleStatus {
+  const delivery = new Date(dataEntrega);
+  const now = new Date();
+  const diffMs = now.getTime() - delivery.getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+  if (diffDays >= 30) return "over_30_days";
+  if (diffDays >= 20) return "over_20_days";
+  return "under_20_days";
+}
+
 function sanitizeStorageFileName(originalName: string) {
   const trimmed = originalName.trim();
   const lastDot = trimmed.lastIndexOf(".");
@@ -58,16 +71,21 @@ export async function createSaleAction(formData: FormData) {
   if (!user) return { error: "Não autorizado" };
 
   try {
+    const dataEntrega = formData.get("data_entrega") as string;
+    const status = computeStatusFromDate(dataEntrega);
+
     const insertData = {
       company_id: user.id,
       entidade_devedora: formData.get("entidade_devedora"),
       valor_nf: parseFloat(formData.get("valor_nf") as string),
-      data_entrega: formData.get("data_entrega"),
+      data_entrega: dataEntrega,
+      status,
       numero_ordem: formData.get("numero_ordem"),
       numero_contrato: formData.get("numero_contrato"),
       numero_nota_empenho: formData.get("numero_nota_empenho"),
       alternative_email: formData.get("alternative_email"),
       itens_quantidade: formData.get("itens_quantidade"),
+      email_sent: false,
     };
 
     const { data: sale, error: saleError } = await supabase
