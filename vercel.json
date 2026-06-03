@@ -1,11 +1,11 @@
 {
   "crons": [
     {
-      "path": "/cronjob/check-overdue",
+      "path": "/api/cronjob/check-overdue",
       "schedule": "0 8 * * *"
     },
     {
-      "path": "/cronjob/follow-up-overdue",
+      "path": "/api/cronjob/follow-up-overdue",
       "schedule": "0 8 * * 1"
     }
   ]
