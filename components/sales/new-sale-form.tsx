@@ -3,18 +3,26 @@
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileText, X } from "lucide-react";
 import { saleSchema, type SaleInput } from "@/lib/schemas/inputs/sales";
 import { createSaleAction, updateSaleAction } from "@/actions/sales";
-import { createDebtorAction } from "@/actions/debtors";
-import { fetchCnpjInfo } from "@/lib/services/cnpj";
-import { formatCentsToBRL, formatPhone, normalizeBRLToDecimal } from "@/lib/formatters/input-formatters";
+import { formatCentsToBRL } from "@/lib/formatters/input-formatters";
 import { getFileNameFromUrl } from "@/lib/formatters";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { DebtorSection, formatCNPJ } from "./debtor-section";
+import { FileUploadField } from "@/components/ui/file-upload-field";
+import { FIELD_LABELS } from "@/lib/constants/sales";
+import {
+  getDefaultValues,
+  getEmptyDefaults,
+  createDebtorIfNeeded,
+  buildSaleFormData,
+  fieldClass,
+} from "@/lib/helpers/sale-form-helpers";
+import { useDebtorSearch } from "@/hooks/use-debtor-search";
+import { useFileInputKey } from "@/hooks/use-file-input-key";
 import type { Sale } from "@/lib/schemas/sales";
-import type { Debtor, DebtorCreateInput } from "@/lib/schemas/debtors";
+import type { Debtor } from "@/lib/schemas/debtors";
 
 type SaleFormProps = {
   onSuccess: (mode: "create" | "update") => void;
@@ -22,41 +30,12 @@ type SaleFormProps = {
   debtors: Debtor[];
 };
 
-function getDefaultValues(sale?: Sale | null): SaleInput {
-  const saleValue = sale?.valor_nf != null ? String(sale.valor_nf) : "";
-  const initialValorNf = saleValue
-    ? formatCentsToBRL(saleValue.replace(/[.,]/g, ""))
-    : "";
-
-  return {
-    entidade_devedora: sale?.entidade_devedora != null ? String(sale.entidade_devedora) : "",
-    valor_nf: initialValorNf,
-    data_entrega: sale ? sale.data_entrega.slice(0, 10) : "",
-    numero_ordem: sale?.numero_ordem ?? "",
-    itens_quantidade: sale?.itens_quantidade ?? "",
-    numero_contrato: sale?.numero_contrato ?? "",
-    numero_nota_empenho: sale?.numero_nota_empenho ?? "",
-    alternative_email: sale?.alternative_email ?? "",
-    nf_file: undefined,
-    contrato_file: undefined,
-  };
-}
-
 export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Debtor state
-  const [cnpjSearch, setCnpjSearch] = useState("");
-  const [isSearchingCnpj, setIsSearchingCnpj] = useState(false);
-  const [isNewDebtor, setIsNewDebtor] = useState(false);
-  const [newDebtorData, setNewDebtorData] = useState<Partial<DebtorCreateInput>>({
-    name: "", email: "", cnpj: "", phone: "", city: "", state: "",
-  });
-  const [lockedDebtorFields, setLockedDebtorFields] = useState<Record<string, boolean>>({});
-
-  const [nfInputKey, setNfInputKey] = useState(0);
-  const [contratoInputKey, setContratoInputKey] = useState(0);
+  const [nfInputKey, resetNfKey] = useFileInputKey();
+  const [contratoInputKey, resetContratoKey] = useFileInputKey();
   const isEditing = Boolean(sale);
 
   const {
@@ -67,81 +46,43 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
     control,
     setValue,
     setError,
-    watch,
   } = useForm<SaleInput>({
     resolver: zodResolver(saleSchema),
-    defaultValues: getDefaultValues(sale),
+    defaultValues: sale ? getDefaultValues(sale) : getEmptyDefaults(),
   });
 
-  const selectedDebtorId = watch("entidade_devedora");
+  const {
+    cnpjSearch,
+    setCnpjSearch,
+    isSearchingCnpj,
+    isNewDebtor,
+    newDebtorData,
+    lockedDebtorFields,
+    handleCnpjChange,
+    handleNewDebtorChange,
+    resetDebtorState,
+  } = useDebtorSearch(debtors, setValue);
+
+  const selectedDebtorId = useWatch({ control, name: "entidade_devedora" });
   const selectedDebtor = debtors.find(d => String(d.id) === String(selectedDebtorId));
 
-  const nfFile = useWatch({ control, name: "nf_file" })?.[0];
-  const contratoFile = useWatch({ control, name: "contrato_file" })?.[0];
+  const nfFileList = useWatch({ control, name: "nf_file" });
+  const nfFile = nfFileList?.[0];
+  const contratoFileList = useWatch({ control, name: "contrato_file" });
+  const contratoFile = contratoFileList?.[0];
+
   const nfDisplayName = nfFile?.name ?? (sale?.nf_url ? getFileNameFromUrl(sale.nf_url) : null);
   const contratoDisplayName = contratoFile?.name ?? (sale?.contrato_url ? getFileNameFromUrl(sale.contrato_url) : null);
 
   useEffect(() => {
-    reset(getDefaultValues(sale));
+    reset(sale ? getDefaultValues(sale) : getEmptyDefaults());
     if (sale) {
       const debtor = debtors.find(d => String(d.id) === String(sale.entidade_devedora));
       if (debtor?.cnpj) setCnpjSearch(formatCNPJ(debtor.cnpj));
     }
-  }, [sale, reset, debtors]);
-
-  const handleCnpjChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatCNPJ(e.target.value);
-    setCnpjSearch(formatted);
-
-    const cleanCnpj = e.target.value.replace(/\D/g, "");
-    setIsNewDebtor(false);
-    setValue("entidade_devedora", "", { shouldValidate: true });
-
-    if (cleanCnpj.length !== 14) return;
-
-    const existing = debtors.find(d => d.cnpj === cleanCnpj);
-    if (existing) {
-      setValue("entidade_devedora", String(existing.id), { shouldValidate: true });
-      return;
-    }
-
-    setIsSearchingCnpj(true);
-    try {
-      const cnpjData = await fetchCnpjInfo(cleanCnpj);
-      setIsNewDebtor(true);
-
-      if (cnpjData) {
-        setNewDebtorData({
-          name: cnpjData.name, email: cnpjData.email, cnpj: cleanCnpj,
-          phone: cnpjData.phone, city: cnpjData.city, state: cnpjData.state,
-        });
-        setLockedDebtorFields({
-          name: !!cnpjData.name, email: !!cnpjData.email, phone: !!cnpjData.phone,
-          city: !!cnpjData.city, state: !!cnpjData.state,
-        });
-      } else {
-        setNewDebtorData({ name: "", email: "", cnpj: cleanCnpj, phone: "", city: "", state: "" });
-        setLockedDebtorFields({});
-      }
-      setValue("entidade_devedora", "NEW", { shouldValidate: true });
-    } catch {
-      setIsNewDebtor(true);
-      setNewDebtorData({ name: "", email: "", cnpj: cleanCnpj, phone: "", city: "", state: "" });
-      setLockedDebtorFields({});
-      setValue("entidade_devedora", "NEW", { shouldValidate: true });
-    } finally {
-      setIsSearchingCnpj(false);
-    }
-  };
-
-  const handleNewDebtorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const finalValue = name === "phone" ? formatPhone(value) : value;
-    setNewDebtorData(prev => ({ ...prev, [name]: finalValue }));
-  };
+  }, [sale, reset, debtors, setCnpjSearch]);
 
   const onSubmit = async (data: SaleInput) => {
-    console.log("Form onSubmit called with:", data);
     setLoading(true);
     setErrorMessage(null);
 
@@ -160,24 +101,15 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
     }
 
     try {
-      let finalDebtorId = data.entidade_devedora;
-
-      if (isNewDebtor && data.entidade_devedora === "NEW") {
-        if (!newDebtorData.name) {
-          setErrorMessage("A Razão Social do comprador é obrigatória.");
-          setLoading(false);
-          return;
-        }
-
-        const debtorResult = await createDebtorAction(newDebtorData as DebtorCreateInput);
-        console.log("createDebtorAction result:", debtorResult);
-        if (!debtorResult.success || !debtorResult.debtor) {
-          setErrorMessage(debtorResult.error ?? "Erro ao cadastrar novo comprador.");
-          setLoading(false);
-          return;
-        }
-        finalDebtorId = String(debtorResult.debtor.id);
+      const debtorResult = await createDebtorIfNeeded(isNewDebtor, data.entidade_devedora, newDebtorData);
+      
+      if ("error" in debtorResult) {
+        setErrorMessage(debtorResult.error);
+        setLoading(false);
+        return;
       }
+      
+      const finalDebtorId = debtorResult.id;
 
       if (!finalDebtorId || finalDebtorId === "NEW") {
         setErrorMessage("Por favor, selecione ou preencha os dados de um comprador válido.");
@@ -185,38 +117,26 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
         return;
       }
 
-      const formData = new FormData();
-      if (sale) formData.append("sale_id", sale.id);
-      formData.append("entidade_devedora", finalDebtorId);
-      formData.append("valor_nf", normalizeBRLToDecimal(data.valor_nf));
-      formData.append("data_entrega", data.data_entrega);
-      formData.append("numero_ordem", data.numero_ordem);
-      formData.append("numero_contrato", data.numero_contrato ?? "");
-      formData.append("numero_nota_empenho", data.numero_nota_empenho ?? "");
-      formData.append("alternative_email", data.alternative_email ?? "");
-      formData.append("itens_quantidade", data.itens_quantidade);
+      const formData = buildSaleFormData(
+        sale?.id,
+        data,
+        finalDebtorId,
+        data.nf_file?.[0],
+        data.contrato_file?.[0]
+      );
 
-      const nfFile = data.nf_file?.[0];
-      const contratoFile = data.contrato_file?.[0];
-      if (nfFile) formData.append("nf_file", nfFile);
-      if (contratoFile) formData.append("contrato_file", contratoFile);
-
-      console.log("Submitting formData with sale:", sale?.id);
       const result = sale
         ? await updateSaleAction(formData)
         : await createSaleAction(formData);
-      console.log("Action result:", result);
 
       if (result.success) {
-        reset(getDefaultValues(null));
-        setCnpjSearch("");
-        setIsNewDebtor(false);
+        reset(getEmptyDefaults());
+        resetDebtorState();
         onSuccess(sale ? "update" : "create");
       } else {
         setErrorMessage(result.error ?? "Não foi possível salvar a venda.");
       }
     } catch (err: any) {
-      console.error("Uncaught submission error:", err);
       setErrorMessage(err?.message ?? "Ocorreu um erro inesperado ao salvar a venda.");
     } finally {
       setLoading(false);
@@ -224,18 +144,9 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
   };
 
   const onInvalid = (formErrors: any) => {
-    console.warn("Form validation failed with errors:", formErrors);
     const errorList = Object.entries(formErrors)
       .map(([key, err]: any) => {
-        const fieldName = 
-          key === "entidade_devedora" ? "Comprador" :
-          key === "itens_quantidade" ? "Itens e Quantidades" :
-          key === "valor_nf" ? "Valor da NF" :
-          key === "data_entrega" ? "Data de Entrega" :
-          key === "numero_ordem" ? "Número da Ordem" :
-          key === "numero_contrato" ? "Número do Contrato" :
-          key === "numero_nota_empenho" ? "Nº da Nota de Empenho" :
-          key === "alternative_email" ? "E-mail Alternativo" : key;
+        const fieldName = FIELD_LABELS[key] ?? key;
         return `${fieldName}: ${err?.message || "campo inválido"}`;
       });
     
@@ -245,10 +156,6 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
       setErrorMessage("Revise os campos obrigatórios destacados em vermelho.");
     }
   };
-
-  const inputBaseClass = `w-full p-2 border rounded-lg transition text-foreground bg-surface placeholder:text-foreground-dim focus:outline-none focus:ring-1`;
-  const inputNormalClass = `${inputBaseClass} border-border focus:border-primary/60 focus:ring-primary/30`;
-  const inputErrorClass = `${inputBaseClass} border-error/50 focus:border-error focus:ring-error/50`;
 
   return (
     <form
@@ -301,7 +208,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
                 onBlur={field.onBlur}
                 name={field.name}
                 ref={field.ref}
-                className={errors.valor_nf ? inputErrorClass : inputNormalClass}
+                className={fieldClass(!!errors.valor_nf)}
                 placeholder="R$ 0,00"
               />
             )}
@@ -317,7 +224,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
           </label>
           <input
             {...register("numero_ordem")}
-            className={errors.numero_ordem ? inputErrorClass : inputNormalClass}
+            className={fieldClass(!!errors.numero_ordem)}
           />
           {errors.numero_ordem && (
             <p className="text-error text-xs mt-1">{errors.numero_ordem.message}</p>
@@ -331,7 +238,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
           <input
             type="date"
             {...register("data_entrega")}
-            className={errors.data_entrega ? inputErrorClass : inputNormalClass}
+            className={fieldClass(!!errors.data_entrega)}
           />
           {errors.data_entrega && (
             <p className="text-error text-xs mt-1">{errors.data_entrega.message}</p>
@@ -346,7 +253,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
           </label>
           <input
             {...register("numero_contrato")}
-            className={errors.numero_contrato ? inputErrorClass : inputNormalClass}
+            className={fieldClass(!!errors.numero_contrato)}
           />
           {errors.numero_contrato && (
             <p className="text-error text-xs mt-1">{errors.numero_contrato.message}</p>
@@ -359,7 +266,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
           </label>
           <input
             {...register("numero_nota_empenho")}
-            className={errors.numero_nota_empenho ? inputErrorClass : inputNormalClass}
+            className={fieldClass(!!errors.numero_nota_empenho)}
           />
           {errors.numero_nota_empenho && (
             <p className="text-error text-xs mt-1">{errors.numero_nota_empenho.message}</p>
@@ -372,7 +279,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
           </label>
           <input
             {...register("alternative_email")}
-            className={errors.alternative_email ? inputErrorClass : inputNormalClass}
+            className={fieldClass(!!errors.alternative_email)}
           />
           {errors.alternative_email && (
             <p className="text-error text-xs mt-1">{errors.alternative_email.message}</p>
@@ -386,7 +293,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
         </label>
         <textarea
           {...register("itens_quantidade")}
-          className={`${errors.itens_quantidade ? inputErrorClass : inputNormalClass} resize-y`}
+          className={`${fieldClass(!!errors.itens_quantidade)} resize-y`}
           rows={3}
           placeholder="Descreva os produtos/serviços..."
         />
@@ -402,7 +309,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
           hasNewFile={!!nfFile}
           onClear={() => {
             setValue("nf_file", undefined, { shouldDirty: true });
-            setNfInputKey(k => k + 1);
+            resetNfKey();
           }}
           clearAriaLabel="Remover nota fiscal selecionada"
           inputKey={nfInputKey}
@@ -414,7 +321,7 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
           hasNewFile={!!contratoFile}
           onClear={() => {
             setValue("contrato_file", undefined, { shouldDirty: true });
-            setContratoInputKey(k => k + 1);
+            resetContratoKey();
           }}
           clearAriaLabel="Remover contrato selecionado"
           inputKey={contratoInputKey}
@@ -432,69 +339,5 @@ export function NewSaleForm({ onSuccess, sale, debtors }: SaleFormProps) {
         {isEditing ? "Salvar Alterações" : "Cadastrar Venda"}
       </Button>
     </form>
-  );
-}
-
-// ─── FileUploadField ──────────────────────────────────────────────────────────
-
-type FileUploadFieldProps = {
-  label: string;
-  displayName: string | null | undefined;
-  hasNewFile: boolean;
-  onClear: () => void;
-  clearAriaLabel: string;
-  inputKey: number;
-  inputProps: React.InputHTMLAttributes<HTMLInputElement>;
-};
-
-function FileUploadField({
-  label,
-  displayName,
-  hasNewFile,
-  onClear,
-  clearAriaLabel,
-  inputKey,
-  inputProps,
-}: FileUploadFieldProps) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-foreground-muted mb-2">
-        {label}
-      </label>
-      <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary-glow px-4 py-5 text-center transition hover:border-primary/50 hover:bg-primary/15">
-        {displayName ? (
-          <>
-            <div className="flex w-full max-w-xs items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-left shadow-sm">
-              <div className="rounded-lg bg-error/20 p-2">
-                <FileText className="h-5 w-5 text-error" aria-hidden="true" />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-foreground">{displayName}</p>
-                <p className="text-xs text-foreground-dim">Documento PDF</p>
-              </div>
-              {hasNewFile && (
-                <button
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClear(); }}
-                  className="ml-auto rounded p-1 text-foreground-dim transition hover:bg-surface-elevated hover:text-foreground"
-                  aria-label={clearAriaLabel}
-                  title="Remover arquivo"
-                >
-                  <X className="h-4 w-4" aria-hidden="true" />
-                </button>
-              )}
-            </div>
-            <span className="text-xs text-primary/70">Clique para substituir o arquivo</span>
-          </>
-        ) : (
-          <>
-            <FileText className="h-6 w-6 text-primary" aria-hidden="true" />
-            <span className="text-sm font-medium text-primary">Selecionar {label}</span>
-            <span className="text-xs text-primary/70">Clique para anexar um PDF</span>
-          </>
-        )}
-        <input key={inputKey} type="file" {...inputProps} className="sr-only" accept=".pdf" />
-      </label>
-    </div>
   );
 }

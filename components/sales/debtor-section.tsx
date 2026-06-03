@@ -25,8 +25,7 @@ type DebtorSectionProps = {
   registerEntidadeDevedora: React.InputHTMLAttributes<HTMLInputElement>;
 };
 
-const inputBaseClass = `w-full p-2 border rounded-lg transition text-foreground bg-surface placeholder:text-foreground-dim focus:outline-none focus:ring-1`;
-const inputNormalClass = `${inputBaseClass} border-border focus:border-primary/60 focus:ring-primary/30`;
+import { inputNormalClass } from "@/lib/helpers/sale-form-helpers";
 
 export function DebtorSection({
   cnpjSearch,
