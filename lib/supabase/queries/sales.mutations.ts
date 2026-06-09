@@ -20,7 +20,6 @@ export async function markSalesAsOver30Days(supabase: SupabaseClient, saleIds: s
     .from("sales")
     .update({ status: "over_30_days", email_sent: true })
     .in("id", saleIds)
-    .eq("status", "over_20_days")
     .select("id, status");
 
   if (error) throw new Error(error.message);
