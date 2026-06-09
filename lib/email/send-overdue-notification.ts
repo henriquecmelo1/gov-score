@@ -46,6 +46,8 @@ export async function sendSalesEmailNotification(
         sender_company: sender.razao_social,
         sender_phone: sender.telefone,
         sender_email: sender.email,
+        numero_contrato: sale.numero_contrato,
+        numero_nota_empenho: sale.numero_nota_empenho,
       });
 
       // Fetch attachments
@@ -96,6 +98,8 @@ export async function sendSalesEmailNotification(
             sender_company: sender.razao_social,
             sender_phone: sender.telefone,
             sender_email: sender.email,
+            numero_contrato: sale.numero_contrato,
+            numero_nota_empenho: sale.numero_nota_empenho,
           });
 
           await resend.emails.send({

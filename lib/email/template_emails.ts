@@ -7,6 +7,8 @@ export type EmailTemplateParams = {
   sender_company: string;
   sender_phone: string;
   sender_email: string;
+  numero_contrato: string | null;
+  numero_nota_empenho: string | null;
 };
 
 function formatCurrency(value: string): string {
@@ -36,7 +38,7 @@ export function get20DayEmailTemplate(params: EmailTemplateParams): {
   subject: string;
   html: string;
 } {
-  const subject = `Lembrete de Pagamento – NF nº ${params.numero_ordem}`;
+  const subject = `Lembrete de Pagamento – Ordem de Fornecimento nº ${params.numero_ordem}`;
 
   const html = `
     <div style="${baseStyle}">
@@ -51,12 +53,12 @@ export function get20DayEmailTemplate(params: EmailTemplateParams): {
       </p>
 
       <p>
-        Encaminhamos, assim, este primeiro lembrete de pagamento referente à seguinte nota fiscal:
+        Encaminhamos, assim, este primeiro lembrete de pagamento referente à seguinte ordem de fornecimento:
       </p>
 
       <table style="border-collapse: collapse; margin: 16px 0; width: 100%;">
         <tr>
-          <td style="padding: 6px 12px; font-weight: bold; width: 200px;">Nota Fiscal</td>
+          <td style="padding: 6px 12px; font-weight: bold; width: 200px;">Ordem de Fornecimento</td>
           <td style="padding: 6px 12px;">nº ${params.numero_ordem}</td>
         </tr>
         <tr style="background: #f5f5f5;">
@@ -69,11 +71,11 @@ export function get20DayEmailTemplate(params: EmailTemplateParams): {
         </tr>
         <tr style="background: #f5f5f5;">
           <td style="padding: 6px 12px; font-weight: bold;">Contrato</td>
-          <td style="padding: 6px 12px;">[CONTRATO_NUMERO]</td>
+          <td style="padding: 6px 12px;">${params.numero_contrato || "Não informado"}</td>
         </tr>
         <tr>
           <td style="padding: 6px 12px; font-weight: bold;">Nota de Empenho</td>
-          <td style="padding: 6px 12px;">[NOTA_EMPENHO]</td>
+          <td style="padding: 6px 12px;">${params.numero_nota_empenho || "Não informado"}</td>
         </tr>
         <tr style="background: #f5f5f5;">
           <td style="padding: 6px 12px; font-weight: bold;">Órgão</td>
@@ -93,8 +95,7 @@ export function get20DayEmailTemplate(params: EmailTemplateParams): {
       </p>
 
       <p>
-        Dessa forma, solicitamos, por gentileza, a informação sobre a previsão de pagamento
-        da referida nota.
+        Dessa forma, solicitamos, por gentileza, a informação sobre a previsão de pagamento.
       </p>
 
       <p>Para facilitar a análise e tramitação interna, seguem anexos:</p>
@@ -129,7 +130,7 @@ export function get30DayEmailTemplate(params: EmailTemplateParams): {
   subject: string;
   html: string;
 } {
-  const subject = `Nota Vencida – Solicitação de Regularização – NF nº ${params.numero_ordem}`;
+  const subject = `Nota Vencida – Solicitação de Regularização – Ordem de Fornecimento nº ${params.numero_ordem}`;
 
   const html = `
     <div style="${baseStyle}">
@@ -144,9 +145,9 @@ export function get30DayEmailTemplate(params: EmailTemplateParams): {
       </p>
 
       <p>
-        Verificamos que a <strong>Nota Fiscal nº ${params.numero_ordem}</strong>, no valor de
-        <strong>${formatCurrency(params.valor_nf)}</strong>, referente ao Contrato nº [CONTRATO_NUMERO]
-        e Nota de Empenho nº [NOTA_EMPENHO], encontra-se com prazo de pagamento vencido.
+        Verificamos que o pagamento referente à <strong>Ordem de Fornecimento nº ${params.numero_ordem}</strong>, no valor de
+        <strong>${formatCurrency(params.valor_nf)}</strong>, referente ao Contrato nº ${params.numero_contrato || "Não informado"}
+        e Nota de Empenho nº ${params.numero_nota_empenho || "Não informado"}, encontra-se com prazo de pagamento vencido.
       </p>
 
       <p>
@@ -201,7 +202,7 @@ export function getCompanyWarningNotificationTemplate(params: EmailTemplateParam
   subject: string;
   html: string;
 } {
-  const subject = `Notificação Enviada: Aviso de 20 Dias – NF nº ${params.numero_ordem}`;
+  const subject = `Notificação Enviada: Aviso de 20 Dias – Ordem de Fornecimento nº ${params.numero_ordem}`;
 
   const html = `
     <div style="${baseStyle}">
@@ -213,7 +214,7 @@ export function getCompanyWarningNotificationTemplate(params: EmailTemplateParam
       </p>
 
       <p>
-        Esta ação foi disparada pois a <strong>Nota Fiscal nº ${params.numero_ordem}</strong> 
+        Esta ação foi disparada pois a <strong>Ordem de Fornecimento nº ${params.numero_ordem}</strong> 
         (valor ${formatCurrency(params.valor_nf)}) completou 20 dias desde a entrega sem registro de pagamento.
       </p>
 
@@ -234,7 +235,7 @@ export function getCompanyOverdueNotificationTemplate(params: EmailTemplateParam
   subject: string;
   html: string;
 } {
-  const subject = `Notificação Enviada: Alerta de Vencimento (30+ Dias) – NF nº ${params.numero_ordem}`;
+  const subject = `Notificação Enviada: Alerta de Vencimento (30+ Dias) – Ordem de Fornecimento nº ${params.numero_ordem}`;
 
   const html = `
     <div style="${baseStyle}">
@@ -246,7 +247,7 @@ export function getCompanyOverdueNotificationTemplate(params: EmailTemplateParam
       </p>
 
       <p>
-        A <strong>Nota Fiscal nº ${params.numero_ordem}</strong> (valor ${formatCurrency(params.valor_nf)}) 
+        A <strong>Ordem de Fornecimento nº ${params.numero_ordem}</strong> (valor ${formatCurrency(params.valor_nf)}) 
         ultrapassou o prazo legal de 30 dias para pagamento.
       </p>
 

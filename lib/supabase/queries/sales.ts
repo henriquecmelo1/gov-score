@@ -27,6 +27,8 @@ export type PendingSaleWithDebtorDetails = {
   debtor_name: string;
   company_name: string;
   email_sent: boolean;
+  numero_contrato: string | null;
+  numero_nota_empenho: string | null;
 };
 
 const SELECT_SALES_WITH_JOINS = `
@@ -46,6 +48,8 @@ const SELECT_SALES_WITH_DEBTOR_DETAILS = `
   entidade_devedora,
   alternative_email,
   email_sent,
+  numero_contrato,
+  numero_nota_empenho,
   debtors ( email, name ),
   profiles ( razao_social )
 `;
@@ -59,7 +63,7 @@ function mapSaleWithDebtorDetails(sale: any): PendingSaleWithDebtorDetails {
   return {
     id: sale.id,
     company_id: sale.company_id,
-    numero_ordem: sale.numero_ordem,
+    numero_ordem: sale.numero_ordem ?? "",
     valor_nf: sale.valor_nf,
     data_entrega: sale.data_entrega,
     contrato_url: sale.contrato_url,
@@ -70,6 +74,8 @@ function mapSaleWithDebtorDetails(sale: any): PendingSaleWithDebtorDetails {
     debtor_name: debtors?.name ?? "Devedor",
     company_name: profiles?.razao_social ?? "Empresa",
     email_sent: sale.email_sent ?? false,
+    numero_contrato: sale.numero_contrato ?? null,
+    numero_nota_empenho: sale.numero_nota_empenho ?? null,
   };
 }
 
