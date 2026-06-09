@@ -50,8 +50,8 @@ const SELECT_SALES_WITH_DEBTOR_DETAILS = `
   email_sent,
   numero_contrato,
   numero_nota_empenho,
-  debtors ( email, name ),
-  profiles ( razao_social )
+  debtors!entidade_devedora ( email, name ),
+  profiles!company_id ( razao_social )
 `;
 
 function mapSaleWithDebtorDetails(sale: any): PendingSaleWithDebtorDetails {
@@ -114,7 +114,10 @@ export async function getSalesStillOver30Days(
     .order("data_entrega", { ascending: true });
 
   if (error) throw new Error(error.message);
-  return (data ?? []).map(mapSaleWithDebtorDetails);
+
+  const mapped = (data ?? []).map(mapSaleWithDebtorDetails);
+  // Deduplicate by id in case the join produces multiple rows for the same sale
+  return Array.from(new Map(mapped.map((s) => [s.id, s])).values());
 }
 
 export async function getPendingSalesOver30Days(
